@@ -17,6 +17,7 @@ const adminNav = [
   { href: '/admin/drivers',      label: 'Fleet',         icon: Car },
   { href: '/admin/analytics',    label: 'Analytics',     icon: BarChart2 },
   { href: '/admin/reports',      label: 'Reports',       icon: FileText },
+  { href: '/admin/kyc',          label: 'KYC Approvals', icon: Shield },
   { href: '/admin/settings',     label: 'Settings',      icon: Settings },
 ];
 

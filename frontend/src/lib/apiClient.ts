@@ -36,8 +36,10 @@ apiClient.interceptors.response.use(
 
 // ─── Auth ─────────────────────────────────────────────────
 export const authApi = {
-  register: (data: any) =>
-    apiClient.post('/auth/register', data),
+  register: (data: any | FormData) =>
+    apiClient.post('/auth/register', data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    }),
   login: (data: { email: string; password: string }) =>
     apiClient.post('/auth/login', data),
   getMe: () => apiClient.get('/auth/me'),
@@ -93,4 +95,7 @@ export const adminApi = {
   getFleet: () => apiClient.get('/admin/fleet'),
   listRides: (params?: { status?: string; page?: number; limit?: number }) =>
     apiClient.get('/admin/rides', { params }),
+  getPendingDrivers: () => apiClient.get('/admin/drivers/pending'),
+  updateDriverKyc: (id: string, status: 'approved' | 'rejected') =>
+    apiClient.patch(`/admin/drivers/${id}/kyc`, { status }),
 };

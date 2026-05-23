@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Car, DollarSign, Star, TrendingUp, Clock, MapPin, CheckCircle, Navigation, AlertCircle, XCircle } from 'lucide-react';
+import { Car, DollarSign, Star, TrendingUp, Clock, MapPin, CheckCircle, Navigation, AlertCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { StatCardSkeleton, RideCardSkeleton } from '@/components/ui/Skeletons';
@@ -10,6 +10,7 @@ import { useDriver } from '@/hooks/useDriver';
 import { useAuthStore } from '@/stores/authStore';
 import { rideApi } from '@/lib/apiClient';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 const MapView = dynamic(() => import('@/components/map/MapView').then(m => ({ default: m.MapView })), { ssr: false });
 
@@ -109,6 +110,42 @@ export default function DriverDashboard() {
   return (
     <div className="space-y-6 animate-fade-in relative pb-10">
       
+      {/* KYC Alert Banners */}
+      {user?.kycStatus !== 'approved' && (
+        <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 shadow-glow ${
+          user?.kycStatus === 'rejected'
+            ? 'bg-red-500/10 border-red-500/30 text-red-200'
+            : 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+              user?.kycStatus === 'rejected' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
+            }`}>
+              {user?.kycStatus === 'rejected' ? <XCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5 animate-pulse" />}
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-white">
+                {user?.kycStatus === 'rejected' ? 'KYC Verification Rejected' : 'KYC Verification Pending'}
+              </h4>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {user?.kycStatus === 'rejected'
+                  ? 'Your KYC documents were rejected. Please update your documents in your profile to resubmit.'
+                  : 'Your registration documents are being reviewed by our compliance team. You will be able to go online once approved.'}
+              </p>
+            </div>
+          </div>
+          <Link href="/driver/profile" className="w-full sm:w-auto flex-shrink-0">
+            <Button size="sm" className={`w-full sm:w-auto font-semibold text-xs ${
+              user?.kycStatus === 'rejected' 
+                ? 'bg-red-600 hover:bg-red-500 text-white' 
+                : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30'
+            }`}>
+              {user?.kycStatus === 'rejected' ? 'Update Documents' : 'Check Status'}
+            </Button>
+          </Link>
+        </div>
+      )}
+      
       {/* Active Ride Sticky Card */}
       {activeRide && (
         <div className="glass-card border border-brand-500/30 bg-brand-500/10 p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 animate-pulse-subtle">
@@ -160,18 +197,29 @@ export default function DriverDashboard() {
           </button>
           
           <button
-            onClick={handleToggleBusy}
+            onClick={() => {
+              if (user?.kycStatus !== 'approved') {
+                toast.error('Cannot go online without KYC approval');
+                return;
+              }
+              handleToggleBusy();
+            }}
+            disabled={user?.kycStatus !== 'approved'}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
               busyMode
                 ? 'bg-amber-650 text-white shadow bg-amber-500/80'
                 : 'text-slate-400 hover:text-slate-200'
-            }`}
+            } ${user?.kycStatus !== 'approved' ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             Busy
           </button>
           
           <button
             onClick={() => {
+              if (user?.kycStatus !== 'approved') {
+                toast.error('Cannot go online without KYC approval');
+                return;
+              }
               if (!user?.isAvailable || busyMode) {
                 if (busyMode) {
                   handleToggleBusy();
@@ -180,11 +228,12 @@ export default function DriverDashboard() {
                 }
               }
             }}
+            disabled={user?.kycStatus !== 'approved'}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
               user?.isAvailable && !busyMode
                 ? 'bg-green-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
-            }`}
+            } ${user?.kycStatus !== 'approved' ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             Online
           </button>

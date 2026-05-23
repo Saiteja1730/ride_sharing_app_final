@@ -48,7 +48,7 @@ function RegisterForm() {
       vehicleYear: '',
       vehicleColor: '',
       vehiclePlate: '',
-      vehicleType: 'economy',
+      vehicleType: 'mini',
     },
   });
 
@@ -90,19 +90,38 @@ function RegisterForm() {
       role: data.role,
     };
 
+    let finalPayload: any = payload;
+
     if (data.role === 'driver') {
-      payload.vehicleInfo = {
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('email', data.email);
+      formData.append('password', data.password);
+      formData.append('phone', data.phone);
+      formData.append('role', data.role);
+      formData.append('vehicleInfo', JSON.stringify({
         make: data.vehicleMake,
         model: data.vehicleModel,
         year: Number(data.vehicleYear) || 2022,
         color: data.vehicleColor,
         plateNumber: data.vehiclePlate,
         type: data.vehicleType,
-      };
+      }));
+
+      if (data.licenseImage && data.licenseImage.length > 0) {
+        formData.append('licenseImage', data.licenseImage[0]);
+      }
+      if (data.aadhaarImage && data.aadhaarImage.length > 0) {
+        formData.append('aadhaarImage', data.aadhaarImage[0]);
+      }
+      if (data.rcImage && data.rcImage.length > 0) {
+        formData.append('rcImage', data.rcImage[0]);
+      }
+      finalPayload = formData;
     }
 
     try {
-      await register(payload);
+      await register(finalPayload);
     } catch (err: any) {
       setSubmitError(err.response?.data?.message || 'Registration failed. The email or phone number might already be in use.');
     }
@@ -382,13 +401,32 @@ function RegisterForm() {
                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
                     {...regField('vehicleType')}
                   >
-                    <option value="economy" className="bg-surface-100">Auto / Mini (Economy)</option>
-                    <option value="premium" className="bg-surface-100">Prime Sedan (Premium)</option>
-                    <option value="suv" className="bg-surface-100">Prime SUV (SUV)</option>
-                    <option value="xl" className="bg-surface-100">Outstation / XL</option>
+                    <option value="bike" className="bg-surface-100">Bike</option>
+                    <option value="auto" className="bg-surface-100">Auto</option>
+                    <option value="mini" className="bg-surface-100">Mini</option>
+                    <option value="sedan" className="bg-surface-100">Sedan</option>
+                    <option value="suv" className="bg-surface-100">SUV</option>
                   </select>
                   {errors.vehicleType && <p className="text-xs text-red-400 mt-1">{errors.vehicleType.message}</p>}
                 </div>
+
+                {/* KYC Documents */}
+                <h3 className="text-sm font-bold text-brand-400 pt-4 border-t border-white/5">KYC Documents (Images)</h3>
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-slate-400">Driver License Image</label>
+                    <input type="file" accept="image/*" className="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all" {...regField('licenseImage')} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-slate-400">Aadhaar Card Image</label>
+                    <input type="file" accept="image/*" className="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all" {...regField('aadhaarImage')} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-slate-400">Vehicle RC Image</label>
+                    <input type="file" accept="image/*" className="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all" {...regField('rcImage')} />
+                  </div>
+                </div>
+
               </div>
             )}
 

@@ -5,6 +5,8 @@ import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { authRateLimiter } from '../middleware/rateLimiter';
 
+import { upload } from '../middleware/upload';
+
 const router = Router();
 
 /**
@@ -17,6 +19,11 @@ const router = Router();
 router.post(
   '/register',
   authRateLimiter,
+  upload.fields([
+    { name: 'licenseImage', maxCount: 1 },
+    { name: 'aadhaarImage', maxCount: 1 },
+    { name: 'rcImage', maxCount: 1 },
+  ]),
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().normalizeEmail().withMessage('Valid email required'),

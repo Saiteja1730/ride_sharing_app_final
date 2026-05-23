@@ -31,7 +31,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export default function DriverProfilePage() {
   const { user, updateUser } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [docStatus, setDocStatus] = useState<'pending' | 'approved' | 'rejected'>('approved');
+  const docStatus = user?.kycStatus || 'pending';
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -260,42 +260,12 @@ export default function DriverProfilePage() {
                     <p className="text-xs font-bold text-white">{doc.name}</p>
                     <code className="text-[10px] text-slate-500 tracking-wider font-mono mt-0.5 block">{doc.code}</code>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                    <CheckCircle className="w-3 h-3" /> VERIFIED
+                  <div className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${docStatus === 'approved' ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'}`}>
+                    {docStatus === 'approved' ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />} 
+                    {docStatus === 'approved' ? 'VERIFIED' : 'PENDING'}
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Quick interactive verification testing panel */}
-          <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-3 relative overflow-hidden">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">Demo Document Controller</h3>
-            <p className="text-[10px] text-slate-400 leading-normal">
-              Toggle this state to simulate document approvals, pending validation buffers, or RTO credential rejections instantly for SDE portfolio evaluations:
-            </p>
-            <div className="flex gap-2 pt-1.5">
-              <button 
-                type="button" 
-                onClick={() => { setDocStatus('approved'); toast.success('State updated to Approved!'); }}
-                className={`flex-1 py-1.5 rounded-lg text-[9px] font-bold border transition-all ${docStatus === 'approved' ? 'bg-green-600/20 border-green-500 text-green-300' : 'bg-white/3 border-white/5 text-slate-400'}`}
-              >
-                Approve
-              </button>
-              <button 
-                type="button"
-                onClick={() => { setDocStatus('pending'); toast.success('State updated to Pending Review!'); }}
-                className={`flex-1 py-1.5 rounded-lg text-[9px] font-bold border transition-all ${docStatus === 'pending' ? 'bg-amber-600/20 border-amber-500 text-amber-300' : 'bg-white/3 border-white/5 text-slate-400'}`}
-              >
-                Pending
-              </button>
-              <button 
-                type="button"
-                onClick={() => { setDocStatus('rejected'); toast.error('State updated to Rejected!'); }}
-                className={`flex-1 py-1.5 rounded-lg text-[9px] font-bold border transition-all ${docStatus === 'rejected' ? 'bg-red-600/20 border-red-500 text-red-300' : 'bg-white/3 border-white/5 text-slate-400'}`}
-              >
-                Reject
-              </button>
             </div>
           </div>
 

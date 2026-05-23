@@ -78,6 +78,13 @@ export const toggleAvailability = async (
     const { userId } = req.user!;
     const { isAvailable, lat, lng } = req.body;
 
+    const driver = await User.findById(userId);
+    if (!driver) throw new HttpError('Driver not found', 404);
+
+    if (isAvailable && driver.kycStatus !== 'approved') {
+      throw new HttpError('Cannot go online without KYC approval', 403);
+    }
+
     const updateData: Record<string, unknown> = { isAvailable };
     if (lat !== undefined && lng !== undefined) {
       updateData.currentLocation = {
@@ -86,18 +93,18 @@ export const toggleAvailability = async (
       };
     }
 
-    const driver = await User.findByIdAndUpdate(
+    const updatedDriver = await User.findByIdAndUpdate(
       userId,
       { $set: updateData },
       { new: true }
     );
-    if (!driver) throw new HttpError('Driver not found', 404);
+    if (!updatedDriver) throw new HttpError('Driver not found', 404);
 
     await invalidateCache('drivers:nearby:*');
 
     res.json({
       success: true,
-      data: { isAvailable: driver.isAvailable },
+      data: { isAvailable: updatedDriver.isAvailable },
       message: `You are now ${isAvailable ? 'online' : 'offline'}`,
     });
   } catch (err) {
@@ -149,7 +156,13 @@ export const getRideRequests = async (
   try {
     const { userId } = req.user!;
     const driver = await User.findById(userId);
-    if (!driver || !driver.currentLocation) {
+    if (!driver) {
+      throw new HttpError('Driver not found', 404);
+    }
+    if (driver.kycStatus !== 'approved') {
+      throw new HttpError('KYC approval required to view requests', 403);
+    }
+    if (!driver.currentLocation) {
       throw new HttpError('Driver location not set', 400);
     }
 
@@ -189,6 +202,12 @@ export const acceptRide = async (
   try {
     const { userId } = req.user!;
     const { rideId } = req.params;
+
+    const driver = await User.findById(userId);
+    if (!driver) throw new HttpError('Driver not found', 404);
+    if (driver.kycStatus !== 'approved') {
+      throw new HttpError('KYC approval required to accept rides', 403);
+    }
 
     const activeRide = await Ride.findActiveRide(userId, 'driver');
     if (activeRide) throw new HttpError('You already have an active ride', 409);

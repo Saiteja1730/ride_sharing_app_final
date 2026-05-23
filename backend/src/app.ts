@@ -54,6 +54,7 @@ async function bootstrap(): Promise<void> {
     stream: { write: (msg) => logger.http(msg.trim()) },
   }));
   app.use(globalRateLimiter);
+  app.use('/uploads', express.static('uploads'));
   app.use((req, res, next) => {
     (req as any).io = io;
     next();

@@ -54,7 +54,10 @@ export const RegisterSchema = z
     vehicleYear: z.string().optional(),
     vehicleColor: z.string().trim().optional(),
     vehiclePlate: z.string().trim().optional(),
-    vehicleType: z.enum(['economy', 'premium', 'suv', 'xl']).optional(),
+    vehicleType: z.enum(['bike', 'auto', 'mini', 'sedan', 'suv']).optional(),
+    licenseImage: z.any().optional(),
+    aadhaarImage: z.any().optional(),
+    rcImage: z.any().optional(),
   })
   .superRefine((data, ctx) => {
     // 1. Confirm password match
@@ -140,7 +143,7 @@ export const BookingSchema = z
       lat: z.number(),
       lng: z.number(),
     }),
-    vehicleType: z.enum(['economy', 'premium', 'suv', 'xl']),
+    vehicleType: z.enum(['bike', 'auto', 'mini', 'sedan', 'suv']),
   })
   .superRefine((data, ctx) => {
     // Block duplicate pickup and dropoff

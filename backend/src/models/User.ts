@@ -12,6 +12,7 @@ export interface IUserDocument extends Document {
   ratingCount: number;
   totalRides: number;
   isVerified: boolean;
+  kycStatus: 'pending' | 'approved' | 'rejected';
   isActive: boolean;
   // Driver-specific
   licenseNumber?: string;
@@ -27,6 +28,11 @@ export interface IUserDocument extends Document {
     color: string;
     plateNumber: string;
     type: 'economy' | 'premium' | 'suv' | 'xl' | 'bike' | 'auto' | 'mini' | 'sedan';
+  };
+  documents?: {
+    licenseUrl?: string;
+    aadhaarUrl?: string;
+    rcUrl?: string;
   };
   earnings?: number;
   pendingPayouts?: number;
@@ -57,6 +63,7 @@ const UserSchema = new Schema<IUserDocument>(
     ratingCount: { type: Number, default: 0 },
     totalRides: { type: Number, default: 0 },
     isVerified: { type: Boolean, default: false },
+    kycStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
     isActive: { type: Boolean, default: true },
     // Driver fields
     licenseNumber: { type: String, sparse: true },
@@ -72,6 +79,11 @@ const UserSchema = new Schema<IUserDocument>(
       color: String,
       plateNumber: String,
       type: { type: String, enum: ['economy', 'premium', 'suv', 'xl', 'bike', 'auto', 'mini', 'sedan'], default: 'economy' },
+    },
+    documents: {
+      licenseUrl: String,
+      aadhaarUrl: String,
+      rcUrl: String,
     },
     earnings: { type: Number, default: 0 },
     pendingPayouts: { type: Number, default: 0 },
@@ -89,7 +101,6 @@ const UserSchema = new Schema<IUserDocument>(
 );
 
 // ---- Indexes ----
-UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ role: 1 });
 UserSchema.index({ isAvailable: 1, role: 1 });
 UserSchema.index({ currentLocation: '2dsphere' }, { sparse: true });
@@ -121,6 +132,7 @@ UserSchema.statics.findNearbyDrivers = function (
     role: 'driver',
     isAvailable: true,
     isActive: true,
+    kycStatus: 'approved',
     currentLocation: {
       $nearSphere: {
         $geometry: { type: 'Point', coordinates: [lng, lat] },

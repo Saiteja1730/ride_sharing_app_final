@@ -229,3 +229,67 @@ export const listRides = async (
     next(err);
   }
 };
+
+/**
+ * @swagger
+ * /api/admin/drivers/pending:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get all pending driver KYC requests
+ */
+export const getPendingDrivers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const pendingDrivers = await User.find({
+      role: 'driver',
+      kycStatus: 'pending'
+    }).select('-password').sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: pendingDrivers,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/drivers/{id}/kyc:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Update driver KYC status
+ */
+export const updateDriverKycStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { status } = req.body;
+    if (!['approved', 'rejected'].includes(status)) {
+      throw new HttpError('Invalid KYC status', 400);
+    }
+
+    const driver = await User.findById(req.params.id);
+    if (!driver || driver.role !== 'driver') {
+      throw new HttpError('Driver not found', 404);
+    }
+
+    driver.kycStatus = status;
+    driver.isVerified = status === 'approved';
+    await driver.save();
+
+    res.json({
+      success: true,
+      data: driver,
+      message: `Driver KYC status updated to ${status}`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

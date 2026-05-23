@@ -9,6 +9,7 @@ import { logger } from '../utils/logger';
 interface SocketData {
   userId: string;
   role: 'rider' | 'driver' | 'admin';
+  kycStatus?: 'pending' | 'approved' | 'rejected';
 }
 
 interface DriverLocationPayload {
@@ -34,11 +35,12 @@ export function registerSocketHandlers(io: Server): void {
         role: string;
       };
 
-      const user = await User.findById(payload.userId).select('isActive role');
+      const user = await User.findById(payload.userId).select('isActive role kycStatus');
       if (!user || !user.isActive) return next(new Error('User not found or inactive'));
 
       socket.data.userId = payload.userId;
       socket.data.role = payload.role as 'rider' | 'driver' | 'admin';
+      socket.data.kycStatus = user.kycStatus;
 
       next();
     } catch (err) {
@@ -52,7 +54,7 @@ export function registerSocketHandlers(io: Server): void {
 
     // Join personal room on connect
     socket.join(`user:${userId}`);
-    if (role === 'driver') {
+    if (role === 'driver' && socket.data.kycStatus === 'approved') {
       socket.join('drivers');
     }
 
@@ -94,6 +96,19 @@ export function registerSocketHandlers(io: Server): void {
     socket.on('driver:toggle-availability', async (available: boolean) => {
       try {
         if (role !== 'driver') return;
+
+        const driver = await User.findById(userId);
+        if (!driver) return;
+
+        if (available && driver.kycStatus !== 'approved') {
+          socket.emit('error', 'Cannot go online without KYC approval');
+          socket.emit('driver:availability-forced-offline');
+          await User.findByIdAndUpdate(userId, { $set: { isAvailable: false } });
+          await invalidateCache('drivers:nearby:*');
+          io.emit('driver:availability-changed', { driverId: userId, available: false });
+          return;
+        }
+
         await User.findByIdAndUpdate(userId, { $set: { isAvailable: available } });
         await invalidateCache('drivers:nearby:*');
         logger.debug(`Driver ${userId} availability → ${available}`);
@@ -119,6 +134,12 @@ export function registerSocketHandlers(io: Server): void {
     socket.on('ride:accept', async (rideId: string) => {
       try {
         if (role !== 'driver') return;
+
+        const driver = await User.findById(userId);
+        if (!driver || driver.kycStatus !== 'approved') {
+          socket.emit('error', 'Your KYC must be approved by admin to accept rides');
+          return;
+        }
 
         const ride = await Ride.findOneAndUpdate(
           { _id: rideId, status: 'searching' },

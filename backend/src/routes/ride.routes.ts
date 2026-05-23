@@ -47,7 +47,7 @@ router.post(
     body('dropoffLocation.address').notEmpty(),
     body('dropoffLocation.coordinates.lat').isFloat(),
     body('dropoffLocation.coordinates.lng').isFloat(),
-    body('vehicleType').isIn(['economy', 'premium', 'suv', 'xl']),
+    body('vehicleType').isIn(['economy', 'premium', 'suv', 'xl', 'bike', 'auto', 'mini', 'sedan']),
     body('fareEstimate.total').isFloat({ min: 0 }),
   ],
   validate,

@@ -11,6 +11,7 @@ interface User {
   rating: number;
   totalRides: number;
   isVerified: boolean;
+  kycStatus?: 'pending' | 'approved' | 'rejected';
   isActive: boolean;
   isAvailable?: boolean;
   licenseNumber?: string;

@@ -58,9 +58,9 @@ export const estimateFare = async (
     // Surge: count active rides vs available drivers
     const [activeRides, availableDrivers, activeDriversByType] = await Promise.all([
       Ride.countDocuments({ status: { $in: ['searching', 'accepted', 'arriving', 'ongoing'] } }),
-      User.countDocuments({ role: 'driver', isAvailable: true }),
+      User.countDocuments({ role: 'driver', isAvailable: true, kycStatus: 'approved' }),
       User.aggregate([
-        { $match: { role: 'driver', isAvailable: true } },
+        { $match: { role: 'driver', isAvailable: true, kycStatus: 'approved' } },
         { $group: { _id: '$vehicleInfo.type', count: { $sum: 1 } } }
       ])
     ]);

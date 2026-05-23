@@ -23,12 +23,26 @@ export const register = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { name, email, password, phone, role, vehicleInfo } = req.body;
+    const { name, email, password, phone, role } = req.body;
+    let vehicleInfo;
+    if (req.body.vehicleInfo) {
+      vehicleInfo = typeof req.body.vehicleInfo === 'string' ? JSON.parse(req.body.vehicleInfo) : req.body.vehicleInfo;
+    }
 
     const existing = await User.findOne({ email });
     if (existing) throw new HttpError('Email already in use', 409);
 
-    const user = await User.create({ name, email, password, phone, role, vehicleInfo });
+    let documents = undefined;
+    if (req.files) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      documents = {
+        licenseUrl: files.licenseImage?.[0] ? `/uploads/${files.licenseImage[0].filename}` : undefined,
+        aadhaarUrl: files.aadhaarImage?.[0] ? `/uploads/${files.aadhaarImage[0].filename}` : undefined,
+        rcUrl: files.rcImage?.[0] ? `/uploads/${files.rcImage[0].filename}` : undefined,
+      };
+    }
+
+    const user = await User.create({ name, email, password, phone, role, vehicleInfo, documents });
     const token = signToken(user.id, user.role, user.email);
 
     logger.info(`New user registered: ${email} (${role})`);
