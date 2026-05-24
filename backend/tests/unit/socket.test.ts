@@ -24,6 +24,7 @@ describe('Socket Handlers Unit Tests', () => {
       data: {
         userId: 'test-user-123',
         role: 'driver',
+        kycStatus: 'approved',
       },
       rooms: new Set(['test-socket-id']),
       join: jest.fn().mockImplementation((room) => {

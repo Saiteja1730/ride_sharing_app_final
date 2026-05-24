@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: rideshare-backend
+    env: node
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: node dist/backend/src/app.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 30d
+      - key: FRONTEND_URL
+        sync: false
+      - key: BASE_FARE_ECONOMY
+        value: "25.00"
+      - key: BASE_FARE_PREMIUM
+        value: "50.00"
+      - key: BASE_FARE_SUV
+        value: "60.00"
+      - key: BASE_FARE_XL
+        value: "70.00"
+      - key: PRICE_PER_KM
+        value: "12.00"
+      - key: PRICE_PER_MIN
+        value: "2.00"
+      - key: SURGE_THRESHOLD
+        value: "0.7"
+      - key: MAX_SURGE_MULTIPLIER
+        value: "3.0"
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: RATE_LIMIT_MAX
+        value: "200"
+      - key: LOG_LEVEL
+        value: info

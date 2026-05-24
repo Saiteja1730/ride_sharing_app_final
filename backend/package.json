@@ -2,11 +2,11 @@
   "name": "rideshare-backend",
   "version": "1.0.0",
   "description": "Production-grade ride-sharing backend API",
-  "main": "dist/app/src/app.js",
+  "main": "dist/backend/src/app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
-    "start": "node dist/app/src/app.js",
+    "start": "node dist/backend/src/app.js",
     "test": "jest --runInBand --forceExit",
     "test:coverage": "jest --runInBand --forceExit --coverage",
     "lint": "eslint src --ext .ts",
