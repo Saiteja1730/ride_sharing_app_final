@@ -205,7 +205,7 @@ export default function RiderDashboard() {
           </div>
           <div>
             <p className="text-sm font-bold text-white leading-tight">Request Ride</p>
-            <p className="text-[10px] text-slate-550 text-slate-500 mt-0.5">Book now in 1 click</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Book now in 1 click</p>
           </div>
         </Link>
         <Link href="/rider/history" className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-violet-500/10 hover:border-violet-500/30 transition-all duration-300 group">
@@ -214,7 +214,7 @@ export default function RiderDashboard() {
           </div>
           <div>
             <p className="text-sm font-bold text-white leading-tight">Ride History</p>
-            <p className="text-[10px] text-slate-555 text-slate-500 mt-0.5">Invoices & details</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Invoices & details</p>
           </div>
         </Link>
         <Link href="/rider/profile" className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group">
@@ -223,7 +223,7 @@ export default function RiderDashboard() {
           </div>
           <div>
             <p className="text-sm font-bold text-white leading-tight">My Profile</p>
-            <p className="text-[10px] text-slate-550 text-slate-500 mt-0.5">Manage preferences</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Manage preferences</p>
           </div>
         </Link>
         <button onClick={() => toast.success("Connecting with Live Support agent...")} className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all duration-300 text-left group w-full">
@@ -232,7 +232,7 @@ export default function RiderDashboard() {
           </div>
           <div>
             <p className="text-sm font-bold text-white leading-tight">24/7 SOS Help</p>
-            <p className="text-[10px] text-slate-550 text-slate-500 mt-0.5">Emergency assistance</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Emergency assistance</p>
           </div>
         </button>
       </div>

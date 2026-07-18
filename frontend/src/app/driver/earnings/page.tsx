@@ -117,7 +117,7 @@ export default function DriverEarningsPage() {
             <DollarSign className="w-5 h-5 text-white" />
           </div>
           <p className="text-2xl font-black text-white">₹{todayEarnings.toFixed(2)}</p>
-          <p className="text-xs text-slate-550 text-slate-500 mt-0.5">Today&apos;s Revenue</p>
+          <p className="text-xs text-slate-500 mt-0.5">Today&apos;s Revenue</p>
         </div>
 
         <div className="glass-card p-5 border border-white/5 hover:bg-white/5 transition-all">
@@ -125,7 +125,7 @@ export default function DriverEarningsPage() {
             <TrendingUp className="w-5 h-5 text-white" />
           </div>
           <p className="text-2xl font-black text-white">₹{weeklyEarnings.toFixed(2)}</p>
-          <p className="text-xs text-slate-550 text-slate-500 mt-0.5">Weekly Revenue</p>
+          <p className="text-xs text-slate-500 mt-0.5">Weekly Revenue</p>
         </div>
 
         <div className="glass-card p-5 border border-white/5 hover:bg-white/5 transition-all">
@@ -133,7 +133,7 @@ export default function DriverEarningsPage() {
             <Calendar className="w-5 h-5 text-white" />
           </div>
           <p className="text-2xl font-black text-white">₹{monthlyEarnings.toFixed(2)}</p>
-          <p className="text-xs text-slate-550 text-slate-500 mt-0.5">Monthly Revenue</p>
+          <p className="text-xs text-slate-500 mt-0.5">Monthly Revenue</p>
         </div>
 
         <div className="glass-card p-5 border border-white/5 hover:bg-white/5 transition-all">
@@ -141,7 +141,7 @@ export default function DriverEarningsPage() {
             <Award className="w-5 h-5 text-white" />
           </div>
           <p className="text-2xl font-black text-white">₹{lifetimeEarnings.toFixed(2)}</p>
-          <p className="text-xs text-slate-550 text-slate-500 mt-0.5">Lifetime Revenue</p>
+          <p className="text-xs text-slate-500 mt-0.5">Lifetime Revenue</p>
         </div>
       </div>
 
@@ -151,7 +151,7 @@ export default function DriverEarningsPage() {
         <div className="glass-card p-5 border border-white/5 lg:col-span-2 space-y-4">
           <div>
             <h3 className="text-base font-bold text-white">Weekly Earnings Trend</h3>
-            <p className="text-xs text-slate-550 text-slate-500">Distribution over current billing cycles</p>
+            <p className="text-xs text-slate-500">Distribution over current billing cycles</p>
           </div>
 
           <div className="h-56 w-full pt-2">
@@ -180,7 +180,7 @@ export default function DriverEarningsPage() {
         <div className="glass-card p-5 border border-white/5 space-y-4">
           <div>
             <h3 className="text-base font-bold text-white">Trips completed per Day</h3>
-            <p className="text-xs text-slate-550 text-slate-500">Weekly ride density metrics</p>
+            <p className="text-xs text-slate-500">Weekly ride density metrics</p>
           </div>
 
           <div className="h-56 w-full pt-2">
@@ -209,7 +209,7 @@ export default function DriverEarningsPage() {
         <div className="glass-card p-5 border border-white/5 space-y-4">
           <div>
             <h3 className="text-base font-bold text-white">Peak Earning Hours</h3>
-            <p className="text-xs text-slate-555 text-slate-500">Peak hours with highest passenger demand</p>
+            <p className="text-xs text-slate-500">Peak hours with highest passenger demand</p>
           </div>
 
           <div className="h-44 w-full">
@@ -234,7 +234,7 @@ export default function DriverEarningsPage() {
             {payouts.map(p => (
               <div key={p.id} className="flex items-center justify-between p-3 rounded-xl bg-white/3 border border-white/5">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-450 flex items-center justify-center text-emerald-400">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                     <ArrowDownLeft className="w-4 h-4" />
                   </div>
                   <div>

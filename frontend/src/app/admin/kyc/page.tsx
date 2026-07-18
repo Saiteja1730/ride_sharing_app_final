@@ -94,19 +94,23 @@ export default function AdminKycPage() {
                       </span>
                     </div>
                   )}
-                  {driver.documents && (
-                    <div className="flex items-center gap-3 mt-4">
-                      {driver.documents.licenseUrl && (
-                        <a href={`http://localhost:4000${driver.documents.licenseUrl}`} target="_blank" rel="noreferrer" className="text-xs text-brand-400 hover:text-brand-300 underline">View License</a>
-                      )}
-                      {driver.documents.aadhaarUrl && (
-                        <a href={`http://localhost:4000${driver.documents.aadhaarUrl}`} target="_blank" rel="noreferrer" className="text-xs text-brand-400 hover:text-brand-300 underline">View Aadhaar</a>
-                      )}
-                      {driver.documents.rcUrl && (
-                        <a href={`http://localhost:4000${driver.documents.rcUrl}`} target="_blank" rel="noreferrer" className="text-xs text-brand-400 hover:text-brand-300 underline">View RC</a>
-                      )}
-                    </div>
-                  )}
+                  {driver.documents && (() => {
+                      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+                      return (
+                        <div className="flex items-center gap-3 mt-4">
+                          {driver.documents.licenseUrl && (
+                            <a href={`${apiBase}${driver.documents.licenseUrl}`} target="_blank" rel="noreferrer" className="text-xs text-brand-400 hover:text-brand-300 underline">View License</a>
+                          )}
+                          {driver.documents.aadhaarUrl && (
+                            <a href={`${apiBase}${driver.documents.aadhaarUrl}`} target="_blank" rel="noreferrer" className="text-xs text-brand-400 hover:text-brand-300 underline">View Aadhaar</a>
+                          )}
+                          {driver.documents.rcUrl && (
+                            <a href={`${apiBase}${driver.documents.rcUrl}`} target="_blank" rel="noreferrer" className="text-xs text-brand-400 hover:text-brand-300 underline">View RC</a>
+                          )}
+                        </div>
+                      );
+                    })()
+                  }
                 </div>
               </div>
               <div className="flex gap-2 w-full md:w-auto">

@@ -202,7 +202,7 @@ FARE BREAKDOWN:
           <div className="glass-card w-full max-w-lg p-6 border border-white/15 shadow-2xl relative overflow-hidden animate-scale-up bg-surface-950 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedRide(null)}
-              className="absolute top-4 right-4 text-xs text-slate-500 hover:text-slate-350 transition-colors"
+              className="absolute top-4 right-4 text-xs text-slate-500 hover:text-slate-300 transition-colors"
             >
               ✕ Close
             </button>
@@ -212,7 +212,7 @@ FARE BREAKDOWN:
                 <Calendar className="w-5 h-5 text-brand-400" />
                 <div>
                   <h3 className="font-bold text-white text-base">Ride Receipt Summary</h3>
-                  <p className="text-[10px] text-slate-550 text-slate-500 mt-0.5">
+                  <p className="text-[10px] text-slate-500 mt-0.5">
                     {new Date(selectedRide.createdAt).toLocaleString('en-IN', {
                       day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
@@ -244,15 +244,15 @@ FARE BREAKDOWN:
             {/* Travel details & vehicle info */}
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="p-3 rounded-xl bg-white/3 border border-white/5 text-center">
-                <p className="text-[9px] text-slate-550 text-slate-500 uppercase font-semibold">Vehicle Class</p>
+                <p className="text-[9px] text-slate-500 uppercase font-semibold">Vehicle Class</p>
                 <p className="text-sm font-bold text-white mt-1 capitalize">🚗 {selectedRide.vehicleType ?? 'Economy'}</p>
               </div>
               <div className="p-3 rounded-xl bg-white/3 border border-white/5 text-center">
-                <p className="text-[9px] text-slate-550 text-slate-500 uppercase font-semibold">Distance</p>
+                <p className="text-[9px] text-slate-500 uppercase font-semibold">Distance</p>
                 <p className="text-sm font-bold text-white mt-1">{(selectedRide.distance ?? 4.2).toFixed(1)} km</p>
               </div>
               <div className="p-3 rounded-xl bg-white/3 border border-white/5 text-center">
-                <p className="text-[9px] text-slate-550 text-slate-500 uppercase font-semibold">Duration</p>
+                <p className="text-[9px] text-slate-500 uppercase font-semibold">Duration</p>
                 <p className="text-sm font-bold text-white mt-1">{Math.round(selectedRide.duration ?? 12)} mins</p>
               </div>
             </div>
@@ -322,7 +322,7 @@ FARE BREAKDOWN:
         <div className="glass-card p-12 text-center border border-white/5 bg-white/3">
           <Clock className="w-14 h-14 text-slate-700 mx-auto mb-4" />
           <p className="text-slate-400 font-medium">No rides found</p>
-          <p className="text-sm text-slate-650 text-slate-600 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             {searchQ ? 'Try a different search term or change your active filters' : 'Your completed rides will appear here'}
           </p>
         </div>

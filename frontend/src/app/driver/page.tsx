@@ -207,7 +207,7 @@ export default function DriverDashboard() {
             disabled={user?.kycStatus !== 'approved'}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
               busyMode
-                ? 'bg-amber-650 text-white shadow bg-amber-500/80'
+                ? 'bg-amber-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
             } ${user?.kycStatus !== 'approved' ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
@@ -264,7 +264,7 @@ export default function DriverDashboard() {
           <div className="glass-card p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-350 text-slate-200">Weekly Performance</h3>
+                <h3 className="text-sm font-semibold text-slate-200">Weekly Performance</h3>
                 <p className="text-xs text-slate-500">Earnings distribution over the past 7 days</p>
               </div>
               <span className="text-xs text-green-400 font-semibold px-2 py-0.5 bg-green-500/10 rounded-full">+18.4%</span>

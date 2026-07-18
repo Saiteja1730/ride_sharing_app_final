@@ -21,6 +21,9 @@ const statusMap: Record<string, BadgeVariant> = {
   cancelled: 'danger',
   online:    'success',
   offline:   'neutral',
+  pending:   'warning',
+  approved:  'success',
+  rejected:  'danger',
 };
 
 export function Badge({ label, variant, status }: {
