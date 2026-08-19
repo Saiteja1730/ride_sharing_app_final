@@ -9,7 +9,7 @@ class RedisClient {
     if (!RedisClient.instance) {
       RedisClient.instance = new Redis(config.redis.url, {
         maxRetriesPerRequest: 3,
-        lazyConnect: true,
+        family: 0, // Enable both IPv4 and IPv6 for cloud environments
         retryStrategy(times) {
           const delay = Math.min(times * 50, 2000);
           return delay;
@@ -17,11 +17,15 @@ class RedisClient {
       });
 
       RedisClient.instance.on('connect', () => {
-        logger.info('✅ Redis connected');
+        logger.info('🔄 Connecting to Redis...');
+      });
+
+      RedisClient.instance.on('ready', () => {
+        logger.info('✅ Redis ready');
       });
 
       RedisClient.instance.on('error', (err) => {
-        logger.error('❌ Redis error:', err.message);
+        logger.error('❌ Redis connection failed: ' + err.message);
       });
 
       RedisClient.instance.on('reconnecting', () => {

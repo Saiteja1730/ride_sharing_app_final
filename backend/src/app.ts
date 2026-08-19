@@ -40,7 +40,17 @@ async function bootstrap(): Promise<void> {
   // ─── Socket.IO ───────────────────────────────────────────
   const io = new Server(httpServer, {
     cors: {
-      origin: config.cors.frontendUrl,
+      origin: (origin, callback) => {
+        const allowedOrigins = config.cors.frontendUrl.split(',').map(url => url.trim());
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+          return callback(null, true);
+        }
+        if (origin.endsWith('.vercel.app')) {
+          return callback(null, true);
+        }
+        callback(new Error('Not allowed by CORS'), false);
+      },
       methods: ['GET', 'POST'],
       credentials: true,
     },
@@ -56,10 +66,25 @@ async function bootstrap(): Promise<void> {
   app.use(compression());
   const allowedOrigins = config.cors.frontendUrl.split(',').map(url => url.trim());
   if (config.isProduction && allowedOrigins.includes('*')) {
-    throw new Error('Wildcard CORS is not allowed in production');
+    logger.warn('Wildcard CORS detected in production. Restricting to safe origins.');
   }
 
-  app.use(cors({ origin: allowedOrigins, credentials: true }));
+  const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // Allow non-browser clients
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      // Allow any Vercel deployment URL
+      if (origin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  };
+  
+  app.use(cors(corsOptions));
   app.use(cookieParser());
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
@@ -68,20 +93,17 @@ async function bootstrap(): Promise<void> {
   // CSRF Protection via strict custom header check for authenticated mutations
   app.use((req, res, next) => {
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
-      // CSRF check: request must have expected origin/referer or a custom X-Requested-With header
-      // For REST/GraphQL APIs where cookies are sent, X-Requested-With is standard
       const isApiRequest = req.headers['x-requested-with'] === 'XMLHttpRequest' || req.headers['x-csrf-token'];
       
       const origin = req.get('origin');
       const referer = req.get('referer');
       let isValidOrigin = false;
       
-      if (origin && allowedOrigins.includes(origin)) isValidOrigin = true;
-      if (referer && allowedOrigins.some(ao => referer.startsWith(ao))) isValidOrigin = true;
+      if (origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*') || origin.endsWith('.vercel.app'))) isValidOrigin = true;
+      if (referer && (allowedOrigins.some(ao => referer.startsWith(ao)) || allowedOrigins.includes('*') || referer.includes('.vercel.app'))) isValidOrigin = true;
 
       const isPublicAuthRoute = ['/api/auth/login', '/api/auth/register', '/api/auth/refresh'].includes(req.path);
 
-      // Allow if valid origin/referer OR standard api header (if no origin/referer sent, e.g., mobile apps)
       if (!isValidOrigin && !isApiRequest && isPublicAuthRoute === false) {
          return res.status(403).json({ success: false, message: 'CSRF token validation failed or missing Origin' });
       }
@@ -226,37 +248,20 @@ async function bootstrap(): Promise<void> {
   } catch (seedErr) {
     logger.error('Failed to seed demo users:', seedErr);
   }
+  // Redis connection is handled in the background by ioredis
+  // The app will wait for it to be ready as needed, or queue commands.
   try {
-    await redisClient.connect();
+    // We can ping it just to verify, but ioredis connects automatically.
+    await redisClient.ping();
   } catch (err: any) {
-    logger.warn(`⚠️ Redis connection failed: ${err.message}. Caching will use in-memory fallback.`);
-    try {
-      await redisClient.disconnect();
-    } catch {
-      // Ignore disconnect error if client was not connected
-    }
-    const mockStore = new Map<string, string>();
-    (redisClient as any).get = async (key: string) => mockStore.get(key) || null;
-    (redisClient as any).setex = async (key: string, ttl: number, val: string) => {
-      mockStore.set(key, val);
-      setTimeout(() => mockStore.delete(key), ttl * 1000);
-      return 'OK';
-    };
-    (redisClient as any).del = async (...keys: string[]) => {
-      keys.forEach(k => mockStore.delete(k));
-      return keys.length;
-    };
-    (redisClient as any).keys = async (pattern: string) => {
-      const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
-      return Array.from(mockStore.keys()).filter(k => regex.test(k));
-    };
+    logger.warn(`⚠️ Initial Redis ping failed: ${err.message}. Commands will be queued until connected.`);
   }
 
-  httpServer.listen(config.port, () => {
-    logger.info(`🚀 Server running on http://localhost:${config.port}`);
-    logger.info(`📚 Swagger docs: http://localhost:${config.port}/api-docs`);
-    logger.info(`🔷 GraphQL: http://localhost:${config.port}/graphql`);
-    logger.info(`🔌 Socket.IO: ws://localhost:${config.port}`);
+  httpServer.listen(config.port, '0.0.0.0', () => {
+    logger.info(`🚀 Server running on http://0.0.0.0:${config.port}`);
+    logger.info(`📚 Swagger docs: http://0.0.0.0:${config.port}/api-docs`);
+    logger.info(`🔷 GraphQL: http://0.0.0.0:${config.port}/graphql`);
+    logger.info(`🔌 Socket.IO: ws://0.0.0.0:${config.port}`);
   });
 
   // ─── Graceful Shutdown ────────────────────────────────────

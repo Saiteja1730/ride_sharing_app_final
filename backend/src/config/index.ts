@@ -27,9 +27,7 @@ export const config = {
   },
 
   redis: {
-    url: isDocker
-      ? process.env.REDIS_URL || 'redis://redis:6379'
-      : process.env.REDIS_URL_LOCAL || 'redis://localhost:6379',
+    url: process.env.REDIS_URL || 'redis://localhost:6379',
   },
 
   jwt: {
