@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/Badge';
 import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
 
+import { authApi } from '@/lib/apiClient';
+
 const profileSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
   email: z.string().email('Invalid email address'),
@@ -31,6 +33,16 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export default function DriverProfilePage() {
   const { user, updateUser } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Refresh profile on mount to get latest KYC status
+  React.useEffect(() => {
+    authApi.getMe().then(res => {
+      if (res.data?.data) {
+        updateUser(res.data.data);
+      }
+    }).catch(() => {});
+  }, [updateUser]);
+
   const docStatus = user?.kycStatus || 'pending';
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileFormValues>({
@@ -39,13 +51,13 @@ export default function DriverProfilePage() {
       name: user?.name || '',
       email: user?.email || '',
       phone: user?.phone || '',
-      licenseNumber: user?.licenseNumber || 'DL-KA-03-2023-0987654',
-      vehicleMake: user?.vehicleInfo?.make || 'Toyota',
-      vehicleModel: user?.vehicleInfo?.model || 'Innova Crysta',
-      vehicleColor: user?.vehicleInfo?.color || 'Black Accent',
-      vehicleYear: String(user?.vehicleInfo?.year || 2023),
-      vehiclePlate: user?.vehicleInfo?.plateNumber || 'KA03HA5678',
-      seatingCapacity: String(user?.vehicleInfo?.seatingCapacity || 6),
+      licenseNumber: user?.licenseNumber || '',
+      vehicleMake: user?.vehicleInfo?.make || '',
+      vehicleModel: user?.vehicleInfo?.model || '',
+      vehicleColor: user?.vehicleInfo?.color || '',
+      vehicleYear: String(user?.vehicleInfo?.year || new Date().getFullYear()),
+      vehiclePlate: user?.vehicleInfo?.plateNumber || '',
+      seatingCapacity: String(user?.vehicleInfo?.seatingCapacity || 4),
     }
   });
 
@@ -66,7 +78,7 @@ export default function DriverProfilePage() {
           type: (user?.vehicleInfo?.type || 'suv') as any,
         }
       });
-      toast.success("Driver profile updated successfully!");
+      toast.success("Profile updated successfully!");
       setIsEditing(false);
     } catch {
       toast.error("Failed to update profile. Please try again.");
@@ -74,42 +86,47 @@ export default function DriverProfilePage() {
   };
 
   const documentLogs = [
-    { name: 'Driver License', code: 'DL-KA-03-******', status: 'approved' },
-    { name: 'Aadhaar ID Card', code: '****-****-9876', status: 'approved' },
-    { name: 'Vehicle Registration (RC)', code: 'RC-KA-03-******', status: 'approved' },
-    { name: 'Commercial Carriage Permit', code: 'PR-CP-******', status: 'approved' },
+    { name: 'Driver License', code: 'DL-KA-03-******' },
+    { name: 'Aadhaar ID Card', code: '****-****-9876' },
+    { name: 'Vehicle Registration (RC)', code: 'RC-KA-03-******' },
+    { name: 'Commercial Carriage Permit', code: 'PR-CP-******' },
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-6 animate-fade-in pb-12 max-w-7xl mx-auto">
       {/* Welcome & Badge Hero banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 to-brand-950 p-6 md:p-8 shadow-glow border border-brand-500/10">
-        <div className="absolute right-[-10%] top-[-20%] w-[300px] h-[300px] bg-brand-500/10 rounded-full blur-3xl" />
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-700 to-brand-900 p-8 shadow-lg border border-brand-800">
+        <div className="absolute right-[-10%] top-[-20%] w-[300px] h-[300px] bg-brand-400/20 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center font-bold text-white text-3xl border border-brand-500/20">
+          <div className="flex items-center gap-5">
+            <div className="relative w-24 h-24 rounded-full bg-white flex items-center justify-center font-black text-brand-900 text-4xl shadow-sm border border-slate-200">
               {user?.name?.charAt(0) ?? 'D'}
               {/* Platinum verification badge */}
-              <div className="absolute -bottom-1.5 -right-1.5 bg-amber-500 p-1.5 rounded-full border-2 border-slate-950 shadow-md text-slate-950 flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4 fill-slate-950" />
-              </div>
+              {docStatus === 'approved' && (
+                <div className="absolute -bottom-1.5 -right-1.5 bg-amber-400 p-2 rounded-full border-4 border-white shadow-sm text-slate-900 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 fill-slate-900" />
+                </div>
+              )}
             </div>
 
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl md:text-2xl font-black text-white">{user?.name}</h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                  Gold Fleet Partner
-                </span>
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white tracking-tight">{user?.name}</h2>
+                {docStatus === 'approved' && (
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md bg-amber-400 text-amber-900 shadow-sm">
+                    Verified Partner
+                  </span>
+                )}
               </div>
-              <p className="text-xs text-slate-400 mt-1">Joined March 2025 • Registered Driver</p>
-              <div className="flex items-center gap-3 mt-2 text-xs">
-                <span className="flex items-center gap-0.5 text-slate-300">
-                  <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                  <strong>{(user?.rating ?? 5.0).toFixed(1)}</strong> Rating
+              <p className="text-sm font-medium text-brand-100 mt-1">Joined {new Date().getFullYear()} • Registered Driver</p>
+              <div className="flex items-center gap-3 mt-3 text-sm">
+                <span className="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full text-white font-bold backdrop-blur-sm shadow-sm border border-white/10">
+                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  {(user?.rating ?? 5.0).toFixed(1)} Rating
                 </span>
-                <span className="text-slate-600">•</span>
-                <span className="text-slate-300"><strong>{user?.totalRides ?? 48}</strong> Rides completed</span>
+                <span className="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full text-white font-bold backdrop-blur-sm shadow-sm border border-white/10">
+                  {user?.totalRides ?? 0} Rides
+                </span>
               </div>
             </div>
           </div>
@@ -117,8 +134,7 @@ export default function DriverProfilePage() {
           <div className="flex items-center gap-2">
             <Button 
               onClick={() => setIsEditing(!isEditing)}
-              className="border-white/10 hover:bg-white/5 bg-white/5 font-semibold text-xs"
-              variant="secondary"
+              className="bg-white text-slate-900 hover:bg-slate-50 font-bold border-transparent shadow-sm py-3 px-5"
             >
               {isEditing ? 'Discard Changes' : 'Edit Profile'}
             </Button>
@@ -129,57 +145,57 @@ export default function DriverProfilePage() {
       <form onSubmit={handleSubmit(onSubmit)} className="grid lg:grid-cols-3 gap-6">
         {/* Left Column: Personal details & verification log */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="glass-card p-6 border border-white/5 space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Settings className="w-5 h-5 text-brand-400" /> Personal Account Settings
+          <div className="bg-white p-6 rounded-2xl shadow-card border border-slate-200 space-y-5">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 tracking-tight">
+              <User className="w-5 h-5 text-brand-600" /> Personal Information
             </h3>
             
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-5">
               <Input 
                 id="name" 
-                label="Full Name" 
+                label="Name" 
                 disabled={!isEditing} 
                 error={errors.name?.message} 
-                icon={<User className="w-4 h-4 text-slate-500" />}
+                icon={<User className="w-5 h-5 text-slate-400" />}
                 {...register('name')}
               />
               <Input 
                 id="email" 
-                label="Email Address" 
+                label="Email" 
                 disabled={!isEditing} 
                 error={errors.email?.message} 
-                icon={<Mail className="w-4 h-4 text-slate-500" />}
+                icon={<Mail className="w-5 h-5 text-slate-400" />}
                 {...register('email')}
               />
               <Input 
                 id="phone" 
-                label="Indian Mobile Number" 
+                label="Phone Number" 
                 disabled={!isEditing} 
                 error={errors.phone?.message} 
-                icon={<Phone className="w-4 h-4 text-slate-500" />}
+                icon={<Phone className="w-5 h-5 text-slate-400" />}
                 {...register('phone')}
               />
               <Input 
                 id="licenseNumber" 
-                label="RTO License Plate Number" 
+                label="License Number" 
                 disabled={!isEditing} 
                 error={errors.licenseNumber?.message} 
-                icon={<FileText className="w-4 h-4 text-slate-500" />}
+                icon={<FileText className="w-5 h-5 text-slate-400" />}
                 {...register('licenseNumber')}
               />
             </div>
           </div>
 
           {/* Vehicle specs and capabilities */}
-          <div className="glass-card p-6 border border-white/5 space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Car className="w-5 h-5 text-brand-400" /> Registered Vehicle Credentials
+          <div className="bg-white p-6 rounded-2xl shadow-card border border-slate-200 space-y-5">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 tracking-tight">
+              <Car className="w-5 h-5 text-brand-600" /> Vehicle Information
             </h3>
             
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-5">
               <Input 
                 id="vehicleMake" 
-                label="Vehicle Brand / Make" 
+                label="Make" 
                 disabled={!isEditing} 
                 error={errors.vehicleMake?.message} 
                 placeholder="e.g. Toyota"
@@ -187,7 +203,7 @@ export default function DriverProfilePage() {
               />
               <Input 
                 id="vehicleModel" 
-                label="Vehicle Model" 
+                label="Model" 
                 disabled={!isEditing} 
                 error={errors.vehicleModel?.message} 
                 placeholder="e.g. Innova"
@@ -195,15 +211,15 @@ export default function DriverProfilePage() {
               />
               <Input 
                 id="vehicleColor" 
-                label="Vehicle Color" 
+                label="Color" 
                 disabled={!isEditing} 
                 error={errors.vehicleColor?.message} 
-                placeholder="e.g. Black Accent"
+                placeholder="e.g. Black"
                 {...register('vehicleColor')}
               />
               <Input 
                 id="vehicleYear" 
-                label="Manufacture Year" 
+                label="Year" 
                 type="number"
                 disabled={!isEditing} 
                 error={errors.vehicleYear?.message} 
@@ -211,7 +227,7 @@ export default function DriverProfilePage() {
               />
               <Input 
                 id="vehiclePlate" 
-                label="RTO Plate Code" 
+                label="Plate Number" 
                 disabled={!isEditing} 
                 error={errors.vehiclePlate?.message} 
                 placeholder="e.g. KA03HA5678"
@@ -219,7 +235,7 @@ export default function DriverProfilePage() {
               />
               <Input 
                 id="seatingCapacity" 
-                label="Seating Capacity" 
+                label="Seats" 
                 type="number"
                 disabled={!isEditing} 
                 error={errors.seatingCapacity?.message} 
@@ -228,13 +244,13 @@ export default function DriverProfilePage() {
             </div>
 
             {isEditing && (
-              <div className="flex justify-end pt-2">
+              <div className="flex justify-end pt-4">
                 <Button 
                   type="submit" 
                   loading={isSubmitting} 
-                  className="bg-brand-500 hover:bg-brand-400 font-bold"
+                  className="font-bold py-3 px-6 shadow-sm"
                 >
-                  Save Profile Configuration
+                  Save Changes
                 </Button>
               </div>
             )}
@@ -244,9 +260,9 @@ export default function DriverProfilePage() {
         {/* Right Column: Verification & Documents checklist */}
         <div className="space-y-6">
           {/* Realtime verification state checklist */}
-          <div className="glass-card p-5 border border-white/5 space-y-4">
+          <div className="bg-white p-6 rounded-2xl shadow-card border border-slate-200 space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">KYC Documents Status</h3>
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Documents</h3>
               <Badge 
                 label={docStatus === 'approved' ? 'approved' : docStatus} 
                 status={docStatus} 
@@ -255,13 +271,13 @@ export default function DriverProfilePage() {
             
             <div className="space-y-3">
               {documentLogs.map((doc, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/3 border border-white/5">
+                <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100 shadow-sm">
                   <div>
-                    <p className="text-xs font-bold text-white">{doc.name}</p>
-                    <code className="text-[10px] text-slate-500 tracking-wider font-mono mt-0.5 block">{doc.code}</code>
+                    <p className="text-sm font-bold text-slate-900">{doc.name}</p>
+                    <code className="text-[10px] text-slate-500 tracking-wider font-mono mt-1 block">{doc.code}</code>
                   </div>
-                  <div className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${docStatus === 'approved' ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'}`}>
-                    {docStatus === 'approved' ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />} 
+                  <div className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm ${docStatus === 'approved' ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-amber-700 bg-amber-50 border border-amber-200'}`}>
+                    {docStatus === 'approved' ? <CheckCircle className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />} 
                     {docStatus === 'approved' ? 'VERIFIED' : 'PENDING'}
                   </div>
                 </div>
@@ -270,22 +286,22 @@ export default function DriverProfilePage() {
           </div>
 
           {/* Preference controls */}
-          <div className="glass-card p-5 space-y-4">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <Bell className="w-4 h-4 text-violet-400" /> Alerts & Prefs
+          <div className="bg-white p-6 rounded-2xl shadow-card border border-slate-200 space-y-5">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <Bell className="w-5 h-5 text-violet-600" /> Alerts & Prefs
             </h3>
-            <div className="space-y-3 text-xs">
+            <div className="space-y-4 text-sm font-medium">
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-slate-300">Push Notifications for Offers</span>
-                <input type="checkbox" defaultChecked className="rounded bg-white/5 border-white/10 text-brand-500 focus:ring-0 focus:ring-offset-0" />
+                <span className="text-slate-700">Push Notifications for Offers</span>
+                <input type="checkbox" defaultChecked className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-5 h-5 cursor-pointer shadow-sm" />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-slate-300">Email Monthly Statements</span>
-                <input type="checkbox" defaultChecked className="rounded bg-white/5 border-white/10 text-brand-500 focus:ring-0 focus:ring-offset-0" />
+                <span className="text-slate-700">Email Monthly Statements</span>
+                <input type="checkbox" defaultChecked className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-5 h-5 cursor-pointer shadow-sm" />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-slate-300">Demand Hotspot Alerts</span>
-                <input type="checkbox" defaultChecked className="rounded bg-white/5 border-white/10 text-brand-500 focus:ring-0 focus:ring-offset-0" />
+                <span className="text-slate-700">Demand Hotspot Alerts</span>
+                <input type="checkbox" defaultChecked className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-5 h-5 cursor-pointer shadow-sm" />
               </label>
             </div>
           </div>

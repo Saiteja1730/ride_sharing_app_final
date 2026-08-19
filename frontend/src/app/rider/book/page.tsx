@@ -92,7 +92,7 @@ export default function BookRidePage() {
   const [pickupSuggestions, setPickupSuggestions] = useState<any[]>([]);
   const [dropoffSuggestions, setDropoffSuggestions] = useState<any[]>([]);
   const [addressLoading, setAddressLoading] = useState(false);
-  const [showGuide, setShowGuide] = useState(true);
+
 
   // OSRM route coords & mock drivers states
   const [routeCoords, setRouteCoords] = useState<{ lat: number; lng: number }[] | null>(null);
@@ -407,58 +407,20 @@ export default function BookRidePage() {
   const isTracking = bookingStep === 'tracking';
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <h1 className="text-3xl font-display font-bold text-white">Book a Ride</h1>
+    <div className="space-y-6 animate-fade-in max-w-7xl mx-auto">
+      <h1 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight">Book a Ride</h1>
 
-      {/* Kollapsible Interactive Simulation Guide */}
-      {showGuide && (
-        <div className="glass-card p-5 border-brand-500/30 bg-brand-500/5 relative animate-fade-in">
-          <button
-            onClick={() => setShowGuide(false)}
-            className="absolute top-4 right-4 text-xs text-slate-500 hover:text-slate-300 transition-colors"
-          >
-            ✕ Dismiss
-          </button>
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-brand-400 mt-0.5 flex-shrink-0" />
-            <div className="space-y-2">
-              <h3 className="font-semibold text-white text-sm">Testing Workflow & Dispatch Guide</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                To simulate and test the end-to-end real-time dispatch cycle correctly:
-              </p>
-              <ol className="list-decimal pl-4 text-xs text-slate-400 space-y-1">
-                <li>
-                  Open a second browser session (like an <strong>Incognito window</strong>) and log in with a driver account (e.g. <code className="text-brand-300 bg-white/5 px-1 py-0.5 rounded">driver@test.com</code> / <code className="text-brand-300 bg-white/5 px-1 py-0.5 rounded">password123</code>).
-                </li>
-                <li>
-                  On the driver dashboard, click the toggle to <strong>Go Online</strong> (this establishes the live location channel).
-                </li>
-                <li>
-                  On this <strong>Rider</strong> window, click <strong>Use my location</strong> or click one of the <strong>Quick presets</strong> below.
-                </li>
-                <li>
-                  Click <strong>Get Fare Estimates</strong>, choose a vehicle class, and click <strong>Confirm Booking</strong>.
-                </li>
-                <li>
-                  Switch back to the <strong>Driver</strong> window to see and accept the live dispatch request instantly!
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-8">
         {/* ── Left: booking form ── */}
-        <div className="space-y-5">
+        <div className="space-y-6">
 
           {/* Active ride tracking panel */}
           {(isSearching || isTracking) && activeRide && (
-            <div className="glass-card p-5 border-brand-500/30 bg-brand-500/5 animate-slide-up space-y-4">
+            <div className="bg-white border border-brand-200 p-6 rounded-2xl shadow-sm animate-slide-up space-y-5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-brand-400 animate-ping" />
-                  <p className="font-semibold text-white">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-3 h-3 rounded-full bg-brand-600 animate-ping" />
+                  <p className="font-bold text-slate-900">
                     {isSearching ? 'Match Request Sent' : 'Ride In Progress'}
                   </p>
                 </div>
@@ -466,37 +428,37 @@ export default function BookRidePage() {
               </div>
 
               {isSearching && (
-                <div className="flex flex-col items-center justify-center py-6 text-center space-y-4">
-                  <div className="relative flex items-center justify-center w-24 h-24">
+                <div className="flex flex-col items-center justify-center py-8 text-center space-y-5">
+                  <div className="relative flex items-center justify-center w-28 h-28">
                     {/* Pulsing radar circles */}
-                    <div className="absolute inset-0 rounded-full bg-brand-500/10 border border-brand-500/20 animate-ping" />
-                    <div className="absolute inset-2 rounded-full bg-brand-500/20 border border-brand-500/30 animate-pulse" />
-                    <div className="relative w-16 h-16 rounded-full bg-brand-500/30 flex items-center justify-center border border-brand-500/40">
-                      <Car className="w-8 h-8 text-brand-400 animate-bounce" />
+                    <div className="absolute inset-0 rounded-full bg-brand-100 border border-brand-200 animate-ping" />
+                    <div className="absolute inset-3 rounded-full bg-brand-50 border border-brand-200 animate-pulse" />
+                    <div className="relative w-16 h-16 rounded-full bg-white flex items-center justify-center border border-slate-200 shadow-sm">
+                      <Car className="w-8 h-8 text-brand-900 animate-bounce" />
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-white">Searching for your ride</h3>
-                    <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                  <div className="space-y-1.5">
+                    <h3 className="text-xl font-bold text-slate-900 tracking-tight">Searching for your ride</h3>
+                    <p className="text-sm font-medium text-slate-500 max-w-xs mx-auto">
                       Matching your request with the closest available driver.
                     </p>
                   </div>
 
-                  <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-brand-300 flex items-center gap-1.5 animate-pulse-subtle">
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
+                  <div className="px-5 py-2.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-bold text-slate-600 flex items-center gap-2 animate-pulse-subtle shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-brand-600" />
                     {mockDrivers.length} drivers nearby in Bangalore
                   </div>
                 </div>
               )}
 
               {isTracking && activeRide.driver && (
-                <div className="space-y-4 mb-4">
+                <div className="space-y-5 mb-4">
 
                   {/* Status Indicator */}
-                  <div className="p-3 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center gap-2.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-brand-400 animate-ping" />
-                    <span className="text-xs font-bold text-brand-300 capitalize">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-brand-600 animate-ping" />
+                    <span className="text-sm font-bold text-slate-700 capitalize">
                       {activeRide.status === 'accepted' ? 'Driver accepted offer' :
                         activeRide.status === 'arriving' ? 'Driver is arriving to pickup' :
                           activeRide.status === 'ongoing' ? 'Trip is in progress' :
@@ -505,16 +467,16 @@ export default function BookRidePage() {
                   </div>
 
                   {/* Driver Profile & Vehicle Info */}
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-lg border border-brand-500/20">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-900 font-bold text-xl border border-slate-200">
                         {(activeRide.driver as any).name?.charAt(0) ?? 'D'}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-white">{(activeRide.driver as any).name}</p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                          <span className="text-xs text-slate-400 font-bold">
+                        <p className="text-base font-bold text-slate-900">{(activeRide.driver as any).name}</p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          <span className="text-xs text-slate-600 font-bold">
                             {((activeRide.driver as any).rating ?? 5.0).toFixed(1)} Rating
                           </span>
                         </div>
@@ -524,15 +486,15 @@ export default function BookRidePage() {
                     <div className="text-right">
                       {((activeRide.driver as any).vehicleInfo) ? (
                         <>
-                          <p className="text-xs font-semibold text-slate-200 uppercase tracking-wide">
+                          <p className="text-sm font-bold text-slate-900 uppercase tracking-wide">
                             {((activeRide.driver as any).vehicleInfo).plateNumber}
                           </p>
-                          <p className="text-[10px] text-slate-500 mt-0.5">
+                          <p className="text-xs font-medium text-slate-500 mt-0.5">
                             {((activeRide.driver as any).vehicleInfo).color} {((activeRide.driver as any).vehicleInfo).make}
                           </p>
                         </>
                       ) : (
-                        <p className="text-xs text-slate-500">Cab details loaded</p>
+                        <p className="text-xs font-medium text-slate-500">Cab details loaded</p>
                       )}
                     </div>
                   </div>
@@ -542,14 +504,14 @@ export default function BookRidePage() {
                     const stats = getLiveStats();
                     if (!stats) return null;
                     return (
-                      <div className="grid grid-cols-2 gap-4 p-4 bg-white/5 border border-white/10 rounded-xl">
+                      <div className="grid grid-cols-2 gap-4 p-5 bg-slate-50 border border-slate-200 rounded-xl">
                         <div className="space-y-1">
-                          <p className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider">Remaining Distance</p>
-                          <p className="text-xl font-black text-white">{stats.distance} km</p>
+                          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Remaining Distance</p>
+                          <p className="text-2xl font-black text-slate-900">{stats.distance} km</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider">Estimated Arrival</p>
-                          <p className="text-xl font-black text-brand-400">{stats.eta} mins</p>
+                          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Estimated Arrival</p>
+                          <p className="text-2xl font-black text-brand-900">{stats.eta} mins</p>
                         </div>
                       </div>
                     );
@@ -560,7 +522,7 @@ export default function BookRidePage() {
               <Button
                 variant="danger"
                 size="sm"
-                className="w-full justify-center"
+                className="w-full justify-center py-3"
                 onClick={() => cancelRide({ id: activeRide._id, reason: 'User cancelled' })}
               >
                 Cancel Ride
@@ -570,17 +532,17 @@ export default function BookRidePage() {
 
           {/* Location inputs */}
           {!isSearching && !isTracking && (
-            <div className="glass-card p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-white">Enter your route</h2>
+            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-card border border-slate-200 space-y-5">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="font-bold text-xl text-slate-900 tracking-tight">Enter your route</h2>
                 <button
                   onClick={detectLocation}
                   disabled={geoLoading}
-                  className="flex items-center gap-1.5 text-xs text-brand-400 hover:text-brand-300 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:text-brand-800 transition-colors disabled:opacity-50 bg-brand-50 px-3 py-1.5 rounded-md"
                 >
                   {geoLoading
-                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    : <LocateFixed className="w-3.5 h-3.5" />
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : <LocateFixed className="w-4 h-4" />
                   }
                   {geoLoading ? 'Detecting...' : 'Use my location'}
                 </button>
@@ -588,9 +550,9 @@ export default function BookRidePage() {
 
               {/* Geo error banner */}
               {geoError && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                  <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-amber-300">{geoError}</p>
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-50 border border-orange-200">
+                  <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm font-medium text-orange-800">{geoError}</p>
                 </div>
               )}
 
@@ -600,17 +562,17 @@ export default function BookRidePage() {
                   id="pickup"
                   label="Pickup location"
                   placeholder="Search pickup or use 'Use my location'..."
-                  icon={<div className="w-2 h-2 rounded-full bg-green-400" />}
+                  icon={<div className="w-3 h-3 rounded-full bg-green-500 shadow-sm" />}
                   value={pickupQuery}
                   onChange={(e) => { setPickupQuery(e.target.value); if (!e.target.value) setPickup(null); setFormError(''); }}
                 />
                 {pickupSuggestions.length > 0 && pickupQuery && !pickupLocation && (
-                  <div className="absolute z-20 w-full mt-1 bg-surface-50 border border-white/10 rounded-xl overflow-hidden shadow-card">
+                  <div className="absolute z-20 w-full mt-2 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-soft">
                     {pickupSuggestions.map((loc) => (
                       <button key={loc.address} onClick={() => selectPickup(loc)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left hover:bg-white/5 transition-colors">
-                        <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                        <span className="text-slate-300 truncate">{loc.address}</span>
+                        className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
+                        <MapPin className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                        <span className="text-slate-700 font-medium truncate">{loc.address}</span>
                       </button>
                     ))}
                   </div>
@@ -623,17 +585,17 @@ export default function BookRidePage() {
                   id="dropoff"
                   label="Dropoff location"
                   placeholder={addressLoading ? 'Resolving location...' : "Search destination or click map..."}
-                  icon={addressLoading ? <Loader2 className="w-3 h-3 text-slate-400 animate-spin" /> : <div className="w-2 h-2 rounded-full bg-brand-400" />}
+                  icon={addressLoading ? <Loader2 className="w-4 h-4 text-slate-400 animate-spin" /> : <div className="w-3 h-3 rounded-full bg-slate-900 shadow-sm" />}
                   value={dropoffQuery}
                   onChange={(e) => { setDropoffQuery(e.target.value); if (!e.target.value) setDropoff(null); setFormError(''); }}
                 />
                 {dropoffSuggestions.length > 0 && dropoffQuery && !dropoffLocation && (
-                  <div className="absolute z-20 w-full mt-1 bg-surface-50 border border-white/10 rounded-xl overflow-hidden shadow-card">
+                  <div className="absolute z-20 w-full mt-2 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-soft">
                     {dropoffSuggestions.map((loc) => (
                       <button key={loc.address} onClick={() => selectDropoff(loc)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left hover:bg-white/5 transition-colors">
-                        <Navigation className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                        <span className="text-slate-300 truncate">{loc.address}</span>
+                        className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
+                        <Navigation className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                        <span className="text-slate-700 font-medium truncate">{loc.address}</span>
                       </button>
                     ))}
                   </div>
@@ -641,15 +603,15 @@ export default function BookRidePage() {
               </div>
 
               {/* Suggested Presets */}
-              <div className="space-y-2 pt-1">
-                <p className="text-xs text-slate-450 font-medium">Quick Presets:</p>
+              <div className="space-y-2.5 pt-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Quick Presets:</p>
                 <div className="flex flex-wrap gap-2">
                   {SUGGESTED_LOCATIONS.map((loc) => (
                     <button
                       key={loc.label}
                       type="button"
                       onClick={() => selectDropoff(loc)}
-                      className="px-2.5 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-slate-300 hover:bg-brand-500/10 hover:border-brand-500/30 hover:text-brand-300 transition-all"
+                      className="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900 transition-all shadow-sm"
                     >
                       📍 {loc.label}
                     </button>
@@ -659,41 +621,45 @@ export default function BookRidePage() {
 
               {/* Form-level validation error */}
               {formError && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                  <p className="text-xs text-red-300">{formError}</p>
+                <div className="flex items-center gap-2 p-3.5 rounded-lg bg-red-50 border border-red-200">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <p className="text-sm font-medium text-red-800">{formError}</p>
                 </div>
               )}
 
-              <Button
-                className="w-full"
-                onClick={handleGetFare}
-                loading={isEstimating}
-                icon={<Search className="w-4 h-4" />}
-              >
-                Get Fare Estimates
-              </Button>
+              <div className="pt-2">
+                <Button
+                  className="w-full py-4 text-base"
+                  onClick={handleGetFare}
+                  loading={isEstimating}
+                  icon={<Search className="w-5 h-5" />}
+                >
+                  Get Fare Estimates
+                </Button>
+              </div>
             </div>
           )}
 
           {/* Vehicle selector */}
           {fareEstimates.length > 0 && !isSearching && !isTracking && (
-            <div className="glass-card p-5 space-y-4 animate-slide-up">
-              <h2 className="font-semibold text-white">Choose your ride</h2>
+            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-card border border-slate-200 space-y-5 animate-slide-up">
+              <h2 className="font-bold text-xl text-slate-900 tracking-tight">Choose your ride</h2>
               <VehicleSelector
                 estimates={fareEstimates}
                 surgeActive={surgeActive}
                 onSelect={() => { }}
               />
-              <Button className="w-full" onClick={handleBook} loading={isBooking}>
-                Confirm Booking
-              </Button>
+              <div className="pt-2">
+                <Button className="w-full py-4 text-base" onClick={handleBook} loading={isBooking}>
+                  Confirm Booking
+                </Button>
+              </div>
             </div>
           )}
         </div>
 
         {/* ── Right: Map ── */}
-        <div className="h-[500px] lg:h-auto lg:min-h-[600px]">
+        <div className="h-[500px] lg:h-auto lg:min-h-[600px] rounded-2xl overflow-hidden shadow-card border border-slate-200 bg-white">
           <MapView
             center={mapCenter}
             pickup={pickupLocation?.coordinates}

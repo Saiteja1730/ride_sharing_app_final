@@ -105,9 +105,10 @@ export const bookRide = async (
 ): Promise<void> => {
   try {
     const riderId = req.user!.userId;
+    const tenantId = req.user!.tenantId || 'default-tenant';
 
     // Check no active ride
-    const activeRide = await Ride.findActiveRide(riderId, 'rider');
+    const activeRide = await Ride.findActiveRide(riderId, 'rider', tenantId);
     if (activeRide) throw new HttpError('You already have an active ride', 409);
 
     const { pickupLocation, dropoffLocation, vehicleType, fareEstimate } = req.body;
@@ -138,6 +139,7 @@ export const bookRide = async (
       duration: fareEstimate.timeFare / (PRICE_PER_MIN[vehicleType] ?? 2.00),
       otp,
       status: 'searching',
+      tenantId: tenantId,
       timeline: [{ status: 'searching', timestamp: new Date() }],
     });
 
@@ -196,8 +198,8 @@ export const getActiveRide = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { userId, role } = req.user!;
-    const ride = await Ride.findActiveRide(userId, role as 'rider' | 'driver');
+    const { userId, role, tenantId } = req.user!;
+    const ride = await Ride.findActiveRide(userId, role as 'rider' | 'driver', tenantId || 'default-tenant');
     res.json({ success: true, data: ride });
   } catch (err) {
     next(err);
@@ -217,9 +219,9 @@ export const getRideHistory = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { userId, role } = req.user!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const { userId, role, tenantId } = req.user!;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 10));
     const skip = (page - 1) * limit;
 
     const cacheKey = CACHE_KEYS.rideHistory(userId, page);
@@ -231,7 +233,7 @@ export const getRideHistory = async (
     }
 
     const field = role === 'driver' ? 'driver' : 'rider';
-    const query = { [field]: userId, status: { $in: ['completed', 'cancelled'] } };
+    const query = { [field]: userId, tenantId: tenantId || 'default-tenant', status: { $in: ['completed', 'cancelled'] } };
 
     const [rides, total] = await Promise.all([
       Ride.find(query)
@@ -276,27 +278,45 @@ export const cancelRide = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const { userId, role } = req.user!;
+    const { userId, role, tenantId } = req.user!;
     const { reason } = req.body;
 
-    const ride = await Ride.findById(id);
-    if (!ride) throw new HttpError('Ride not found', 404);
+    const isRider = role === 'rider';
+    const isDriver = role === 'driver';
 
-    const isRider = role === 'rider' && ride.rider.toString() === userId;
-    const isDriver = role === 'driver' && ride.driver?.toString() === userId;
-    if (!isRider && !isDriver && role !== 'admin') {
-      throw new HttpError('Not authorized to cancel this ride', 403);
+    const ride = await Ride.findOneAndUpdate(
+      { 
+        _id: id, 
+        tenantId: tenantId || 'default-tenant',
+        status: { $nin: ['completed', 'cancelled'] },
+        ...(role !== 'admin' ? { [isRider ? 'rider' : 'driver']: userId } : {})
+      },
+      {
+        $set: { 
+          status: 'cancelled',
+          cancelledAt: new Date(),
+          cancellationReason: reason || 'No reason provided'
+        },
+        $push: { timeline: { status: 'cancelled', timestamp: new Date(), note: reason } }
+      },
+      { new: true }
+    );
+
+    if (!ride) {
+      const existingRide = await Ride.findOne({ _id: id, tenantId: tenantId || 'default-tenant' });
+      if (!existingRide) throw new HttpError('Ride not found', 404);
+      if (role !== 'admin' && existingRide.rider.toString() !== userId && existingRide.driver?.toString() !== userId) {
+        throw new HttpError('Not authorized to cancel this ride', 403);
+      }
+      if (['completed', 'cancelled'].includes(existingRide.status)) {
+        throw new HttpError(`Ride is already ${existingRide.status}`, 400);
+      }
+      throw new HttpError('Ride cannot be cancelled', 400);
     }
 
-    if (['completed', 'cancelled'].includes(ride.status)) {
-      throw new HttpError(`Ride is already ${ride.status}`, 400);
+    if (ride.driver) {
+       await User.findByIdAndUpdate(ride.driver, { isAvailable: true });
     }
-
-    ride.status = 'cancelled';
-    ride.cancelledAt = new Date();
-    ride.cancellationReason = reason || 'No reason provided';
-    ride.timeline.push({ status: 'cancelled', timestamp: new Date(), note: reason });
-    await ride.save();
 
     await invalidateCache(`history:${userId}:*`);
 
@@ -331,10 +351,10 @@ export const rateRide = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const { userId, role } = req.user!;
+    const { userId, role, tenantId } = req.user!;
     const { rating, comment } = req.body;
 
-    const ride = await Ride.findById(id).populate('rider driver');
+    const ride = await Ride.findOne({ _id: id, tenantId: tenantId || 'default-tenant' }).populate('rider driver');
     if (!ride) throw new HttpError('Ride not found', 404);
     if (ride.status !== 'completed') throw new HttpError('Only completed rides can be rated', 400);
 
@@ -380,13 +400,15 @@ export const searchRides = async (
 ): Promise<void> => {
   try {
     const { q } = req.query;
-    const { userId } = req.user!;
+    const { userId, tenantId } = req.user!;
+    const qStr = typeof q === 'string' ? q : '';
 
-    if (!q) throw new HttpError('Search query required', 400);
+    if (!qStr) throw new HttpError('Search query required', 400);
 
     const rides = await Ride.find({
       rider: userId,
-      $text: { $search: q as string },
+      tenantId: tenantId || 'default-tenant',
+      $text: { $search: qStr },
     })
       .sort({ score: { $meta: 'textScore' } })
       .limit(20)

@@ -24,7 +24,14 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 /* ── Tooltip theme ──────────────────────────────── */
-const tooltipStyle = { backgroundColor: '#1a1a2e', borderColor: '#ffffff15', borderRadius: 12, fontSize: 12 };
+const tooltipStyle = {
+  backgroundColor: '#ffffff',
+  borderColor: '#e2e8f0',
+  borderRadius: 12,
+  fontSize: 12,
+  color: '#0f172a',
+  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'
+};
 
 /* ── KPI Card ────────────────────────────────────── */
 function KPI({ title, value, sub, icon: Icon, trend, color = 'violet' }: {
@@ -37,30 +44,30 @@ function KPI({ title, value, sub, icon: Icon, trend, color = 'violet' }: {
     rose: 'border-l-rose-500', blue: 'border-l-blue-500',
   };
   return (
-    <div className={`glass-card p-5 border-l-4 ${borderColors[color] || borderColors.violet} hover:bg-white/5 transition-colors`}>
+    <div className={`bg-white p-5 rounded-2xl border border-slate-200 border-l-4 ${borderColors[color] || borderColors.violet} shadow-sm hover:bg-slate-50 transition-colors`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{title}</p>
-          <p className="text-2xl font-display font-bold text-white mt-1.5">{value}</p>
-          {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
+          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">{title}</p>
+          <p className="text-2xl font-display font-extrabold text-slate-900 mt-1.5">{value}</p>
+          {sub && <p className="text-xs text-slate-500 font-semibold mt-1">{sub}</p>}
         </div>
         {Icon && (
-          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-            <Icon className="w-5 h-5 text-slate-400" />
+          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 shadow-sm flex items-center justify-center">
+            <Icon className="w-5 h-5 text-slate-500" />
           </div>
         )}
       </div>
       {trend && (
         <div className="flex items-center gap-1.5 mt-3">
           {trend.value >= 0 ? (
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+            <TrendingUp className="w-3.5 h-3.5 text-green-700" />
           ) : (
-            <TrendingDown className="w-3.5 h-3.5 text-rose-400" />
+            <TrendingDown className="w-3.5 h-3.5 text-red-700" />
           )}
-          <span className={`text-xs font-semibold ${trend.value >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <span className={`text-xs font-extrabold ${trend.value >= 0 ? 'text-green-700' : 'text-red-700'}`}>
             {trend.value >= 0 ? '+' : ''}{trend.value}%
           </span>
-          <span className="text-xs text-slate-500">{trend.label}</span>
+          <span className="text-xs text-slate-500 font-semibold">{trend.label}</span>
         </div>
       )}
     </div>
@@ -72,10 +79,10 @@ function ChartCard({ title, subtitle, children, className = '' }: {
   title: string; subtitle?: string; children: React.ReactNode; className?: string;
 }) {
   return (
-    <div className={`glass-card p-6 ${className}`}>
+    <div className={`bg-white p-6 rounded-2xl border border-slate-200 shadow-sm ${className}`}>
       <div className="mb-5">
-        <h3 className="text-base font-bold text-white">{title}</h3>
-        {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+        <h3 className="text-base font-extrabold text-slate-900">{title}</h3>
+        {subtitle && <p className="text-xs font-semibold text-slate-500 mt-0.5">{subtitle}</p>}
       </div>
       {children}
     </div>
@@ -85,9 +92,9 @@ function ChartCard({ title, subtitle, children, className = '' }: {
 /* ── Mini stat row ────────────────────────────── */
 function StatRow({ label, value, color }: { label: string; value: string | number; color?: string }) {
   return (
-    <div className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
-      <span className="text-sm text-slate-400">{label}</span>
-      <span className={`text-sm font-bold ${color || 'text-white'}`}>{value}</span>
+    <div className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0">
+      <span className="text-sm font-semibold text-slate-500">{label}</span>
+      <span className={`text-sm font-extrabold ${color || 'text-slate-900'}`}>{value}</span>
     </div>
   );
 }
@@ -98,10 +105,10 @@ function ProgressBar({ label, value, max, color }: { label: string; value: numbe
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-slate-400">{label}</span>
-        <span className="text-white font-semibold">{value} / {max}</span>
+        <span className="text-slate-600 font-semibold">{label}</span>
+        <span className="text-slate-900 font-extrabold">{value} / {max}</span>
       </div>
-      <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+      <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
     </div>
@@ -280,8 +287,8 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <RefreshCw className="w-10 h-10 animate-spin text-violet-500" />
-        <p className="text-slate-400 text-sm">Loading analytics data…</p>
+        <RefreshCw className="w-10 h-10 animate-spin text-brand-900" />
+        <p className="text-slate-500 font-semibold text-sm">Loading analytics data…</p>
       </div>
     );
   }
@@ -336,23 +343,23 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
      RENDER
      ═══════════════════════════════════════════ */
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-6 animate-fade-in pb-12 max-w-7xl mx-auto">
       {/* ── Header ──────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <button onClick={() => router.push('/admin/reports')} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-300" />
+          <button onClick={() => router.push('/admin/reports')} className="p-2.5 bg-white border border-slate-200 shadow-sm hover:bg-slate-50 rounded-xl transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-600" />
           </button>
           <div>
-            <h1 className="text-2xl font-display font-bold text-white">{title}</h1>
-            <p className="text-slate-400 text-sm mt-0.5">{subtitle}</p>
+            <h1 className="text-2xl font-display font-bold text-slate-900 tracking-tight">{title}</h1>
+            <p className="text-slate-500 font-semibold text-sm mt-0.5">{subtitle}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white text-sm font-semibold flex items-center gap-2 transition-all shadow-lg shadow-violet-500/20 disabled:opacity-50"
+            className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-755 text-white text-sm font-bold flex items-center gap-2 transition-all shadow-md disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
             {exporting ? 'Exporting…' : 'Export CSV'}
@@ -383,9 +390,9 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data.hourlyData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                    <XAxis dataKey="hour" stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} interval={2} />
-                    <YAxis stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <XAxis dataKey="hour" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} interval={2} />
+                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                     <RTooltip contentStyle={tooltipStyle} />
                     <Bar dataKey="rides" fill="#8b5cf6" radius={[6, 6, 0, 0]} name="Rides" />
                   </BarChart>
@@ -397,7 +404,7 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={data.statusPieData} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" stroke="none">
+                    <Pie data={data.statusPieData} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" stroke="#ffffff" strokeWidth={2}>
                       {data.statusPieData.map((entry: any, i: number) => (
                         <Cell key={i} fill={STATUS_COLORS[entry.name] || COLORS[i % COLORS.length]} />
                       ))}
@@ -417,12 +424,12 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.weekTrend}>
                     <defs>
-                      <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/><stop offset="95%" stopColor="#10b981" stopOpacity={0}/></linearGradient>
-                      <linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/><stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/></linearGradient>
+                      <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/><stop offset="95%" stopColor="#10b981" stopOpacity={0}/></linearGradient>
+                      <linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#f43f5e" stopOpacity={0.2}/><stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/></linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                    <XAxis dataKey="date" stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                     <RTooltip contentStyle={tooltipStyle} />
                     <Area type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} fill="url(#gc)" name="Completed" />
                     <Area type="monotone" dataKey="cancelled" stroke="#f43f5e" strokeWidth={2} fill="url(#gr)" name="Cancelled" />
@@ -434,17 +441,17 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
             <ChartCard title="Top Pickup Locations" subtitle="Most requested pickup areas">
               <div className="space-y-1">
                 {data.topPickups.map((p: any, i: number) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center text-xs font-bold text-violet-400">
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-xs font-bold text-violet-750 shadow-sm">
                       #{i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-white truncate">{p.name}</p>
-                      <p className="text-xs text-slate-500">{p.count} rides</p>
+                      <p className="text-sm font-bold text-slate-900 truncate">{p.name}</p>
+                      <p className="text-xs text-slate-500 font-semibold">{p.count} rides</p>
                     </div>
                   </div>
                 ))}
-                {data.topPickups.length === 0 && <p className="text-sm text-slate-500 text-center py-6">No ride data yet</p>}
+                {data.topPickups.length === 0 && <p className="text-sm text-slate-500 font-semibold text-center py-6">No ride data yet</p>}
               </div>
             </ChartCard>
           </div>
@@ -473,11 +480,11 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.weekTrend}>
                     <defs>
-                      <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.35}/><stop offset="95%" stopColor="#10b981" stopOpacity={0}/></linearGradient>
+                      <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.25}/><stop offset="95%" stopColor="#10b981" stopOpacity={0}/></linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                    <XAxis dataKey="date" stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                     <RTooltip contentStyle={tooltipStyle} formatter={(val: any) => `₹${Number(val).toLocaleString('en-IN')}`} />
                     <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fill="url(#revGrad)" name="Revenue (₹)" />
                   </AreaChart>
@@ -489,7 +496,7 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={data.revVehiclePie} cx="50%" cy="45%" innerRadius={65} outerRadius={95} paddingAngle={4} dataKey="value" stroke="none">
+                    <Pie data={data.revVehiclePie} cx="50%" cy="45%" innerRadius={65} outerRadius={95} paddingAngle={4} dataKey="value" stroke="#ffffff" strokeWidth={2}>
                       {data.revVehiclePie.map((_: any, i: number) => (
                         <Cell key={i} fill={COLORS[i % COLORS.length]} />
                       ))}
@@ -506,9 +513,9 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.hourlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                  <XAxis dataKey="hour" stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} interval={2} />
-                  <YAxis stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                  <XAxis dataKey="hour" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} interval={2} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                   <RTooltip contentStyle={tooltipStyle} formatter={(val: any) => `₹${Number(val).toLocaleString('en-IN')}`} />
                   <Bar dataKey="revenue" fill="#8b5cf6" radius={[6, 6, 0, 0]} name="Revenue (₹)" />
                 </BarChart>
@@ -544,10 +551,10 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
                         { name: 'Online', value: data.onlineDrivers.length },
                         { name: 'Offline', value: data.drivers.length - data.onlineDrivers.length },
                       ]}
-                      cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" stroke="none"
+                      cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" stroke="#ffffff" strokeWidth={2}
                     >
                       <Cell fill="#10b981" />
-                      <Cell fill="#475569" />
+                      <Cell fill="#94a3b8" />
                     </Pie>
                     <RTooltip contentStyle={tooltipStyle} />
                     <Legend verticalAlign="bottom" height={36} iconType="circle" />
@@ -557,10 +564,10 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
             </ChartCard>
 
             <ChartCard title="Driver Earnings Leaderboard" subtitle="Top earners on the platform" className="lg:col-span-2">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto animate-fade-in">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-white/5 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    <tr className="border-b border-slate-200 bg-slate-50/50 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                       <th className="px-4 py-3">Rank</th>
                       <th className="px-4 py-3">Driver</th>
                       <th className="px-4 py-3">Email</th>
@@ -569,28 +576,28 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
                       <th className="px-4 py-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-slate-100">
                     {data.drivers
                       .sort((a: any, b: any) => (b.earnings ?? 0) - (a.earnings ?? 0))
                       .slice(0, 8)
                       .map((d: any, i: number) => (
-                      <tr key={d._id} className="hover:bg-white/5 transition-colors">
+                      <tr key={d._id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="px-4 py-3.5">
-                          <span className={`text-xs font-bold ${i < 3 ? 'text-amber-400' : 'text-slate-500'}`}>#{i + 1}</span>
+                          <span className={`text-xs font-bold ${i < 3 ? 'text-amber-500' : 'text-slate-500'}`}>#{i + 1}</span>
                         </td>
-                        <td className="px-4 py-3.5 text-sm font-medium text-white">{d.name}</td>
-                        <td className="px-4 py-3.5 text-sm text-slate-400">{d.email}</td>
-                        <td className="px-4 py-3.5 text-sm font-bold text-emerald-400">₹{(d.earnings ?? 0).toLocaleString('en-IN')}</td>
-                        <td className="px-4 py-3.5 text-sm font-bold text-amber-400">₹{(d.pendingPayouts ?? 0).toLocaleString('en-IN')}</td>
+                        <td className="px-4 py-3.5 text-sm font-bold text-slate-900">{d.name}</td>
+                        <td className="px-4 py-3.5 text-sm font-semibold text-slate-500">{d.email}</td>
+                        <td className="px-4 py-3.5 text-sm font-extrabold text-green-700">₹{(d.earnings ?? 0).toLocaleString('en-IN')}</td>
+                        <td className="px-4 py-3.5 text-sm font-extrabold text-amber-705">₹{(d.pendingPayouts ?? 0).toLocaleString('en-IN')}</td>
                         <td className="px-4 py-3.5">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${d.isAvailable ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'}`}>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${d.isAvailable ? 'bg-green-50 text-green-700 border-green-200 shadow-sm' : 'bg-slate-50 text-slate-500 border-slate-200 shadow-sm'}`}>
                             {d.isAvailable ? 'Online' : 'Offline'}
                           </span>
                         </td>
                       </tr>
                     ))}
                     {data.drivers.length === 0 && (
-                      <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-500">No drivers registered yet</td></tr>
+                      <tr><td colSpan={6} className="px-4 py-8 text-center text-sm font-semibold text-slate-500">No drivers registered yet</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -621,9 +628,9 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data.monthlyGrowth}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                    <XAxis dataKey="month" stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <XAxis dataKey="month" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                     <RTooltip contentStyle={tooltipStyle} />
                     <Bar dataKey="riders" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Riders" stackId="a" />
                     <Bar dataKey="drivers" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Drivers" stackId="a" />
@@ -643,7 +650,7 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
                         { name: 'Drivers', value: data.drivers.length },
                         { name: 'Admins', value: users.filter((u: any) => u.role === 'admin').length },
                       ]}
-                      cx="50%" cy="45%" innerRadius={65} outerRadius={95} paddingAngle={4} dataKey="value" stroke="none"
+                      cx="50%" cy="45%" innerRadius={65} outerRadius={95} paddingAngle={4} dataKey="value" stroke="#ffffff" strokeWidth={2}
                     >
                       <Cell fill="#0ea5e9" />
                       <Cell fill="#8b5cf6" />
@@ -662,11 +669,11 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={data.monthlyGrowth}>
                   <defs>
-                    <linearGradient id="ugGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/><stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/></linearGradient>
+                    <linearGradient id="ugGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25}/><stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/></linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                  <XAxis dataKey="month" stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                  <XAxis dataKey="month" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                   <RTooltip contentStyle={tooltipStyle} />
                   <Area type="monotone" dataKey="total" stroke="#8b5cf6" strokeWidth={3} fill="url(#ugGrad)" name="Total Users" />
                 </AreaChart>
@@ -697,9 +704,9 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={data.weekTrend}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                    <XAxis dataKey="date" stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#ffffff40" fontSize={11} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
                     <RTooltip contentStyle={tooltipStyle} />
                     <Line type="monotone" dataKey="rides" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6', r: 4 }} name="Total Rides" />
                     <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981', r: 4 }} name="Completed" />
@@ -713,7 +720,7 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={data.vehiclePieData} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" stroke="none">
+                    <Pie data={data.vehiclePieData} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" stroke="#ffffff" strokeWidth={2}>
                       {data.vehiclePieData.map((_: any, i: number) => (
                         <Cell key={i} fill={COLORS[i % COLORS.length]} />
                       ))}
@@ -729,12 +736,12 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ChartCard title="Quality Metrics" subtitle="Key quality indicators">
               <div className="space-y-1">
-                <StatRow label="Rides Completed" value={data.completed.length} color="text-emerald-400" />
-                <StatRow label="Rides Cancelled" value={data.cancelled.length} color="text-rose-400" />
-                <StatRow label="Active Right Now" value={data.active.length} color="text-cyan-400" />
-                <StatRow label="Completion Rate" value={`${data.completionRate.toFixed(1)}%`} color="text-emerald-400" />
-                <StatRow label="Cancellation Rate" value={`${data.cancellationRate.toFixed(1)}%`} color="text-rose-400" />
-                <StatRow label="Avg Fare" value={`₹${data.avgFare.toFixed(0)}`} color="text-amber-400" />
+                <StatRow label="Rides Completed" value={data.completed.length} color="text-green-700" />
+                <StatRow label="Rides Cancelled" value={data.cancelled.length} color="text-red-700" />
+                <StatRow label="Active Right Now" value={data.active.length} color="text-cyan-700" />
+                <StatRow label="Completion Rate" value={`${data.completionRate.toFixed(1)}%`} color="text-green-700" />
+                <StatRow label="Cancellation Rate" value={`${data.cancellationRate.toFixed(1)}%`} color="text-red-700" />
+                <StatRow label="Avg Fare" value={`₹${data.avgFare.toFixed(0)}`} color="text-amber-700" />
               </div>
             </ChartCard>
             <ChartCard title="Completion Funnel" subtitle="Ride lifecycle progression">
@@ -750,9 +757,7 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
         </>
       )}
 
-      {/* ════════════════════════════════════════
-          6. COMPLIANCE & SAFETY
-          ════════════════════════════════════════ */}
+      {/* ── Compliance & Safety ── */}
       {reportId === 'compliance' && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -776,7 +781,7 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
                         { name: 'Verified', value: data.activeDrivers.length },
                         { name: 'Pending', value: Math.max(0, data.drivers.length - data.activeDrivers.length) },
                       ]}
-                      cx="50%" cy="45%" innerRadius={65} outerRadius={95} paddingAngle={4} dataKey="value" stroke="none"
+                      cx="50%" cy="45%" innerRadius={65} outerRadius={95} paddingAngle={4} dataKey="value" stroke="#ffffff" strokeWidth={2}
                     >
                       <Cell fill="#10b981" />
                       <Cell fill="#f59e0b" />
@@ -790,12 +795,12 @@ export default function AnalyticsDashboard({ params }: { params: { id: string } 
 
             <ChartCard title="Safety & Compliance Checklist" subtitle="Platform safety requirements">
               <div className="space-y-1">
-                <StatRow label="Driver License Verified" value={`${data.activeDrivers.length} / ${data.drivers.length}`} color="text-emerald-400" />
-                <StatRow label="Vehicle Insurance Valid" value={`${data.activeDrivers.length} / ${data.drivers.length}`} color="text-emerald-400" />
-                <StatRow label="Background Check Passed" value={`${data.activeDrivers.length} / ${data.drivers.length}`} color="text-emerald-400" />
-                <StatRow label="Vehicle Inspection" value={`${Math.max(0, data.activeDrivers.length - 1)} / ${data.drivers.length}`} color="text-amber-400" />
-                <StatRow label="Incidents Reported (30d)" value="0" color="text-emerald-400" />
-                <StatRow label="Complaints Open" value="0" color="text-emerald-400" />
+                <StatRow label="Driver License Verified" value={`${data.activeDrivers.length} / ${data.drivers.length}`} color="text-green-700" />
+                <StatRow label="Vehicle Insurance Valid" value={`${data.activeDrivers.length} / ${data.drivers.length}`} color="text-green-700" />
+                <StatRow label="Background Check Passed" value={`${data.activeDrivers.length} / ${data.drivers.length}`} color="text-green-700" />
+                <StatRow label="Vehicle Inspection" value={`${Math.max(0, data.activeDrivers.length - 1)} / ${data.drivers.length}`} color="text-amber-700" />
+                <StatRow label="Incidents Reported (30d)" value="0" color="text-green-700" />
+                <StatRow label="Complaints Open" value="0" color="text-green-700" />
               </div>
             </ChartCard>
           </div>

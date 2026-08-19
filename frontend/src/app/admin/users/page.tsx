@@ -55,67 +55,67 @@ export default function AdminUsersPage() {
   const active  = users.filter(u => u.isActive).length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in max-w-7xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-white">User Management</h1>
-          <p className="text-slate-400 mt-1">View, search, and manage all platform users</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">User Management</h1>
+          <p className="text-sm font-medium text-slate-500 mt-1">View, search, and manage all platform users</p>
         </div>
       </div>
 
       {/* Summary chips */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
         {[
-          { label: 'Total',    value: total,   icon: Users,    color: 'from-brand-500 to-brand-700'   },
-          { label: 'Riders',   value: riders,  icon: Users,    color: 'from-violet-500 to-purple-700' },
-          { label: 'Drivers',  value: drivers, icon: Car,      color: 'from-amber-500 to-orange-700'  },
-          { label: 'Active',   value: active,  icon: UserCheck,color: 'from-green-500 to-emerald-700' },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="glass-card p-4 flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center flex-shrink-0`}>
-              <Icon className="w-4 h-4 text-white" />
+          { label: 'Total',    value: total,   icon: Users,    color: 'from-brand-600 to-brand-900', textColor: 'text-brand-900', bgIcon: 'bg-brand-100' },
+          { label: 'Riders',   value: riders,  icon: Users,    color: 'from-violet-500 to-purple-600', textColor: 'text-violet-900', bgIcon: 'bg-violet-100' },
+          { label: 'Drivers',  value: drivers, icon: Car,      color: 'from-amber-500 to-orange-600', textColor: 'text-amber-900', bgIcon: 'bg-amber-100' },
+          { label: 'Active',   value: active,  icon: UserCheck,color: 'from-green-500 to-emerald-600', textColor: 'text-green-900', bgIcon: 'bg-green-100' },
+        ].map(({ label, value, icon: Icon, color, textColor, bgIcon }) => (
+          <div key={label} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:border-slate-300 transition-all">
+            <div className={`w-12 h-12 rounded-xl ${bgIcon} flex items-center justify-center flex-shrink-0 shadow-sm border border-white/20`}>
+              <Icon className={`w-6 h-6 ${textColor}`} />
             </div>
             <div>
-              <p className="text-xl font-display font-bold text-white">{value}</p>
-              <p className="text-xs text-slate-500">{label}</p>
+              <p className="text-2xl font-display font-extrabold text-slate-900">{value}</p>
+              <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mt-0.5">{label}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="glass-card p-4 flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name or email…"
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-sm font-medium"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           {(['all','rider','driver'] as const).map(r => (
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
-              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                roleFilter === r ? 'bg-violet-500 text-white' : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white'
+              className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
+                roleFilter === r ? 'bg-violet-100 text-violet-700 border border-violet-200' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
               {r.charAt(0).toUpperCase() + r.slice(1)}
             </button>
           ))}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           {(['all','active','inactive'] as const).map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
                 statusFilter === s
-                  ? s === 'active' ? 'bg-green-500 text-white' : s === 'inactive' ? 'bg-red-500 text-white' : 'bg-violet-500 text-white'
-                  : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white'
+                  ? s === 'active' ? 'bg-green-100 text-green-700 border border-green-200' : s === 'inactive' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-slate-100 text-slate-700 border border-slate-200'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
               {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -125,77 +125,77 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Table */}
-      <div className="glass-card overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/5">
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3.5">User</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3.5">Role</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3.5 hidden sm:table-cell">Phone</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3.5 hidden md:table-cell">Rides</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3.5 hidden md:table-cell">Rating</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3.5">Status</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3.5 hidden lg:table-cell">Verified</th>
-                <th className="px-4 py-3.5" />
+              <tr className="bg-slate-50 border-b border-slate-200">
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-6 py-4">User</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-4">Role</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-4 hidden sm:table-cell">Phone</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-4 hidden md:table-cell">Rides</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-4 hidden md:table-cell">Rating</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-4">Status</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-4 hidden lg:table-cell">Verified</th>
+                <th className="px-4 py-4" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-100">
               {isLoading
                 ? [...Array(6)].map((_, i) => (
-                    <tr key={i}><td colSpan={8} className="px-5 py-3.5"><div className="h-10 skeleton rounded-lg" /></td></tr>
+                    <tr key={i}><td colSpan={8} className="px-6 py-4"><div className="h-10 skeleton rounded-lg" /></td></tr>
                   ))
                 : filtered.map((u: any) => (
-                    <tr key={u._id} className="hover:bg-white/3 transition-colors group">
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-400 to-violet-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                    <tr key={u._id} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 text-sm font-black flex-shrink-0 shadow-sm">
                             {u.name?.charAt(0)}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-white">{u.name}</p>
-                            <p className="text-xs text-slate-500">{u.email}</p>
+                            <p className="text-sm font-bold text-slate-900">{u.name}</p>
+                            <p className="text-xs font-medium text-slate-500">{u.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          u.role === 'driver' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-brand-500/10 text-brand-400 border border-brand-500/20'
+                      <td className="px-4 py-4">
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border uppercase tracking-wider ${
+                          u.role === 'driver' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-brand-50 text-brand-700 border-brand-200'
                         }`}>
                           {u.role}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 text-xs text-slate-400 hidden sm:table-cell">{u.phone}</td>
-                      <td className="px-4 py-3.5 text-xs text-white font-medium hidden md:table-cell">{u.totalRides}</td>
-                      <td className="px-4 py-3.5 hidden md:table-cell">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                          <span className="text-xs text-white">{u.rating?.toFixed(1)}</span>
+                      <td className="px-4 py-4 text-xs font-medium text-slate-600 hidden sm:table-cell">{u.phone}</td>
+                      <td className="px-4 py-4 text-xs text-slate-900 font-bold hidden md:table-cell">{u.totalRides}</td>
+                      <td className="px-4 py-4 hidden md:table-cell">
+                        <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md w-fit border border-slate-100 shadow-sm">
+                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                          <span className="text-xs font-bold text-slate-700">{u.rating?.toFixed(1)}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          u.isActive ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
+                      <td className="px-4 py-4">
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border uppercase tracking-wider ${
+                          u.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
                         }`}>
                           {u.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 hidden lg:table-cell">
+                      <td className="px-4 py-4 hidden lg:table-cell">
                         {u.isVerified
-                          ? <CheckCircle className="w-4 h-4 text-green-400" />
-                          : <XCircle className="w-4 h-4 text-slate-600" />}
+                          ? <CheckCircle className="w-5 h-5 text-emerald-500" />
+                          : <XCircle className="w-5 h-5 text-slate-300" />}
                       </td>
-                      <td className="px-4 py-3.5">
+                      <td className="px-4 py-4">
                         <button
                           onClick={() => toggleMutation.mutate(u._id)}
                           disabled={toggleMutation.isPending}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all shadow-sm ${
                             u.isActive
-                              ? 'text-red-400 hover:bg-red-500/10 border border-red-500/20'
-                              : 'text-green-400 hover:bg-green-500/10 border border-green-500/20'
+                              ? 'text-red-600 bg-white hover:bg-red-50 border border-red-200 hover:border-red-300'
+                              : 'text-green-600 bg-white hover:bg-green-50 border border-green-200 hover:border-green-300'
                           }`}
                         >
-                          {u.isActive ? <><UserX className="w-3.5 h-3.5" /> Disable</> : <><UserCheck className="w-3.5 h-3.5" /> Enable</>}
+                          {u.isActive ? <><UserX className="w-4 h-4" /> Disable</> : <><UserCheck className="w-4 h-4" /> Enable</>}
                         </button>
                       </td>
                     </tr>
@@ -203,7 +203,7 @@ export default function AdminUsersPage() {
               }
               {!isLoading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-slate-500">
+                  <td colSpan={8} className="px-6 py-12 text-center text-slate-500 font-medium">
                     No users match your filters
                   </td>
                 </tr>
@@ -211,11 +211,11 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
-        <div className="px-5 py-3 border-t border-white/5 flex items-center justify-between">
-          <p className="text-xs text-slate-500">Showing {filtered.length} of {users.length} users</p>
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Showing {filtered.length} of {users.length} users</p>
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 text-xs text-slate-400 hover:text-white bg-white/5 rounded-lg border border-white/10 transition-colors">← Prev</button>
-            <button className="px-3 py-1.5 text-xs text-slate-400 hover:text-white bg-white/5 rounded-lg border border-white/10 transition-colors">Next →</button>
+            <button className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white rounded-lg border border-slate-200 shadow-sm transition-colors hover:bg-slate-50">← Prev</button>
+            <button className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white rounded-lg border border-slate-200 shadow-sm transition-colors hover:bg-slate-50">Next →</button>
           </div>
         </div>
       </div>

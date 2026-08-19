@@ -17,8 +17,19 @@ jest.mock('ioredis', () => {
     connect: jest.fn().mockResolvedValue(undefined),
     quit: jest.fn().mockResolvedValue(undefined),
     on: jest.fn(),
+    sadd: jest.fn().mockResolvedValue(1),
+    srem: jest.fn().mockResolvedValue(1),
+    smembers: jest.fn().mockResolvedValue([]),
+    status: 'ready',
+    incr: jest.fn().mockResolvedValue(1),
+    expire: jest.fn().mockResolvedValue(1),
+    ttl: jest.fn().mockResolvedValue(10),
+    set: jest.fn().mockResolvedValue('OK'),
+    eval: jest.fn().mockResolvedValue(1),
   };
-  return jest.fn(() => mockRedis);
+  const mockFn = jest.fn(() => mockRedis);
+  (mockFn as any).Redis = mockFn;
+  return mockFn;
 });
 
 jest.mock('../../src/config', () => ({
@@ -46,8 +57,10 @@ beforeAll(async () => {
   const { default: authRoutes } = await import('../../src/routes/auth.routes');
   const { default: driverRoutes } = await import('../../src/routes/driver.routes');
   const { errorHandler } = await import('../../src/middleware/errorHandler');
+  const cookieParser = require('cookie-parser');
 
   app = express();
+  app.use(cookieParser());
   app.use(express.json());
   app.use('/api/auth', authRoutes);
   app.use('/api/drivers', driverRoutes);
@@ -89,13 +102,14 @@ describe('Driver KYC Restriction Integration Tests', () => {
       .send(testDriver);
     
     expect(regRes.status).toBe(201);
-    const { token, user } = regRes.body.data;
+    const { user } = regRes.body.data;
+    const cookies = regRes.headers['set-cookie'];
     expect(user.kycStatus).toBe('pending');
 
     // 2. Attempt to go online
     const patchRes = await request(app)
       .patch('/api/drivers/availability')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', cookies)
       .send({ isAvailable: true, lat: 12.9756, lng: 77.6068 });
 
     expect(patchRes.status).toBe(403);
@@ -112,24 +126,25 @@ describe('Driver KYC Restriction Integration Tests', () => {
       .post('/api/auth/register')
       .send(testDriver);
     
-    const { token, user } = regRes.body.data;
+    const { user } = regRes.body.data;
+    const cookies = regRes.headers['set-cookie'];
 
     // 2. Approve driver KYC status in database
     await User.findByIdAndUpdate(user._id, {
-      $set: { kycStatus: 'approved', isVerified: true }
+      $set: { kycStatus: 'approved', isVerified: true, tenantId: 'default-tenant' }
     });
 
     // 3. Attempt to go online
     const patchRes = await request(app)
       .patch('/api/drivers/availability')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', cookies)
       .send({ isAvailable: true, lat: 12.9756, lng: 77.6068 });
 
     expect(patchRes.status).toBe(200);
     expect(patchRes.body.data.isAvailable).toBe(true);
 
     // 4. Verify findNearbyDrivers returns this driver
-    const nearbyDrivers = await (User as any).findNearbyDrivers(12.9756, 77.6068, 5);
+    const nearbyDrivers = await (User as any).findNearbyDrivers(12.9756, 77.6068, 5, 'default-tenant');
     expect(nearbyDrivers.length).toBe(1);
     expect(nearbyDrivers[0]._id.toString()).toBe(user._id);
   });

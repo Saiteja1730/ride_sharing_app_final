@@ -207,64 +207,67 @@ export default function DriverTripsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <h1 className="text-3xl font-display font-bold text-white">My Trips</h1>
+    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto pb-12">
+      <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">My Trips</h1>
 
       {/* Active ride controls */}
       {activeRideData && (
-        <div className="glass-card p-5 border-brand-500/30 bg-brand-500/5 animate-slide-up">
-          <div className="flex items-center justify-between mb-3">
-            <p className="font-semibold text-white flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+        <div className="bg-white p-6 rounded-2xl shadow-card border border-brand-200 animate-slide-up relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-32 h-32 bg-brand-50 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex items-center justify-between mb-5 relative z-10">
+            <p className="font-semibold text-slate-900 flex items-center gap-2.5">
+              <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-sm" />
               Active Ride
             </p>
             <Badge label={statusLabel[activeRideData.status]} status={activeRideData.status} />
           </div>
 
-          <div className="space-y-1.5 mb-4 text-sm">
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
-              <p className="text-slate-300">{activeRideData.pickupLocation?.address}</p>
+          <div className="space-y-3 mb-6 relative z-10">
+            <div className="absolute left-[9px] top-4 bottom-2 w-0.5 bg-slate-200 rounded-full" />
+            <div className="flex items-start gap-3 relative z-10">
+              <div className="w-5 h-5 rounded-full bg-green-100 border-2 border-green-500 flex-shrink-0 flex items-center justify-center mt-0.5" />
+              <p className="text-sm font-medium text-slate-700">{activeRideData.pickupLocation?.address}</p>
             </div>
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-brand-400 mt-1.5 flex-shrink-0" />
-              <p className="text-slate-300">{activeRideData.dropoffLocation?.address}</p>
+            <div className="flex items-start gap-3 relative z-10">
+              <div className="w-5 h-5 rounded-full bg-brand-100 border-2 border-brand-500 flex-shrink-0 flex items-center justify-center mt-0.5" />
+              <p className="text-sm font-medium text-slate-700">{activeRideData.dropoffLocation?.address}</p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6 p-4 bg-slate-50 border border-slate-100 rounded-xl relative z-10">
             <div>
-              <p className="text-xs text-slate-500">Rider</p>
-              <p className="text-sm text-white font-medium">{(activeRideData.rider as any)?.name}</p>
+              <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500">Rider</p>
+              <p className="text-sm text-slate-900 font-bold">{(activeRideData.rider as any)?.name}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-slate-500">Fare</p>
-              <p className="font-bold text-white">₹{activeRideData.fare?.total?.toFixed(2)}</p>
+              <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500">Fare</p>
+              <p className="text-lg font-black text-slate-900">₹{activeRideData.fare?.total?.toFixed(2)}</p>
             </div>
           </div>
 
           {simStats && (
-            <div className="grid grid-cols-2 gap-3 p-3 bg-white/5 border border-white/10 rounded-xl mb-4 animate-pulse">
-              <div>
-                <p className="text-xs text-slate-500 capitalize">Dist to {simStats.phase}</p>
-                <p className="text-lg font-bold text-white mt-0.5">{simStats.distance} km</p>
+            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 border border-slate-200 shadow-sm rounded-xl mb-5 animate-pulse relative z-10">
+              <div className="text-center">
+                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Dist to {simStats.phase}</p>
+                <p className="text-2xl font-black text-slate-900 mt-1">{simStats.distance} km</p>
               </div>
-              <div>
-                <p className="text-xs text-slate-500">Simulated ETA</p>
-                <p className="text-lg font-bold text-brand-400 mt-0.5">{simStats.eta} min</p>
+              <div className="text-center border-l border-slate-200">
+                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Simulated ETA</p>
+                <p className="text-2xl font-black text-brand-600 mt-1">{simStats.eta} min</p>
               </div>
             </div>
           )}
 
           {nextStatusMap[activeRideData.status] && (
             <Button
-              className="w-full"
+              className="w-full relative z-10 font-bold py-3.5 shadow-sm"
               loading={isUpdatingStatus}
               onClick={() => updateStatus({
                 rideId: activeRideData._id,
                 status: nextStatusMap[activeRideData.status],
               })}
-              icon={<CheckCircle className="w-4 h-4" />}
+              icon={<CheckCircle className="w-5 h-5" />}
             >
               {nextStatusLabel[nextStatusMap[activeRideData.status]]}
             </Button>
@@ -272,10 +275,10 @@ export default function DriverTripsPage() {
 
           {activeRideData.status === 'searching' && (
             <Button
-              className="w-full"
+              className="w-full relative z-10 font-bold py-3.5 shadow-sm"
               loading={isAccepting}
               onClick={() => acceptRide(activeRideData._id)}
-              icon={<CheckCircle className="w-4 h-4" />}
+              icon={<CheckCircle className="w-5 h-5" />}
             >
               Accept Ride
             </Button>
@@ -284,7 +287,7 @@ export default function DriverTripsPage() {
           {/* SIMULATE COMPLETE RIDE BUTTON */}
           {['accepted', 'arriving', 'ongoing'].includes(activeRideData.status) && (
             <Button
-              className="w-full mt-3 border-brand-400 text-brand-400"
+              className="w-full mt-4 border-brand-500 text-brand-700 bg-brand-50 hover:bg-brand-100 font-bold relative z-10"
               variant="secondary"
               loading={isSimulating}
               onClick={simulateFullRide}
@@ -296,51 +299,52 @@ export default function DriverTripsPage() {
       )}
 
       {/* Trip history */}
-      <div>
-        <h2 className="section-heading mb-4">Trip History</h2>
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Trip History</h2>
 
         {isLoading ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[...Array(5)].map((_, i) => <RideCardSkeleton key={i} />)}
           </div>
         ) : rides.length === 0 ? (
-          <div className="glass-card p-12 text-center">
-            <Car className="w-14 h-14 text-slate-700 mx-auto mb-4" />
-            <p className="text-slate-400 font-medium">No completed trips yet</p>
-            <p className="text-sm text-slate-600 mt-1">Go online to start accepting rides</p>
+          <div className="bg-white p-12 text-center rounded-2xl shadow-sm border border-slate-200">
+            <Car className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <p className="text-lg text-slate-900 font-bold">No completed trips yet</p>
+            <p className="text-sm text-slate-500 mt-1 font-medium">Go online to start accepting rides</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {rides.map((ride: any) => (
-              <div key={ride._id} className="glass-card p-5 hover:border-white/15 transition-all">
-                <div className="flex items-start justify-between mb-3">
+              <div key={ride._id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-brand-300 transition-all">
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-xs text-slate-500 mb-1">
+                    <p className="text-xs font-medium text-slate-500 mb-1.5">
                       {formatDistanceToNow(new Date(ride.createdAt), { addSuffix: true })}
                     </p>
                     <Badge label={statusLabel[ride.status] ?? ride.status} status={ride.status} />
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-white">₹{ride.fare?.total?.toFixed(2)}</p>
-                    <p className="text-xs text-slate-500 capitalize">{ride.vehicleType}</p>
+                    <p className="text-xl font-black text-slate-900">₹{ride.fare?.total?.toFixed(2)}</p>
+                    <p className="text-xs font-bold text-slate-500 capitalize mt-0.5">{ride.vehicleType}</p>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
-                    <p className="text-slate-400 leading-tight">{ride.pickupLocation?.address}</p>
+                <div className="space-y-3 relative">
+                  <div className="absolute left-[9px] top-4 bottom-2 w-0.5 bg-slate-200 rounded-full" />
+                  <div className="flex items-start gap-3 relative z-10">
+                    <div className="w-5 h-5 rounded-full bg-green-100 border-2 border-green-500 flex-shrink-0 flex items-center justify-center mt-0.5" />
+                    <p className="text-sm font-medium text-slate-700 leading-snug">{ride.pickupLocation?.address}</p>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full bg-brand-400 mt-1.5 flex-shrink-0" />
-                    <p className="text-slate-400 leading-tight">{ride.dropoffLocation?.address}</p>
+                  <div className="flex items-start gap-3 relative z-10">
+                    <div className="w-5 h-5 rounded-full bg-brand-100 border-2 border-brand-500 flex-shrink-0 flex items-center justify-center mt-0.5" />
+                    <p className="text-sm font-medium text-slate-700 leading-snug">{ride.dropoffLocation?.address}</p>
                   </div>
                 </div>
 
                 {ride.rating?.driverRating && (
-                  <div className="flex items-center gap-1 mt-3 pt-3 border-t border-white/5">
-                    <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    <span className="text-xs text-slate-400">
+                  <div className="flex items-center gap-2 mt-5 pt-4 border-t border-slate-100">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <span className="text-sm font-bold text-slate-600">
                       Rider rated you {ride.rating.driverRating}/5
                     </span>
                   </div>

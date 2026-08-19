@@ -14,7 +14,9 @@ export interface IUserDocument extends Document {
   isVerified: boolean;
   kycStatus: 'pending' | 'approved' | 'rejected';
   isActive: boolean;
+  tenantId: string;
   // Driver-specific
+
   licenseNumber?: string;
   isAvailable?: boolean;
   currentLocation?: {
@@ -47,6 +49,7 @@ interface IUserModel extends Model<IUserDocument> {
     lat: number,
     lng: number,
     radiusKm: number,
+    tenantId: string,
     vehicleType?: string
   ): Promise<IUserDocument[]>;
 }
@@ -65,7 +68,9 @@ const UserSchema = new Schema<IUserDocument>(
     isVerified: { type: Boolean, default: false },
     kycStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
     isActive: { type: Boolean, default: true },
+    tenantId: { type: String, default: 'default-tenant', index: true },
     // Driver fields
+
     licenseNumber: { type: String, sparse: true },
     isAvailable: { type: Boolean, default: false },
     currentLocation: {
@@ -110,6 +115,8 @@ UserSchema.index({ isActive: 1, role: 1 });
 // ---- Pre-save hook ----
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
+  // Prevent double-hashing if password is already a bcrypt hash
+  if (/^\$2[abxy]\$/.test(this.password)) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
@@ -126,6 +133,7 @@ UserSchema.statics.findNearbyDrivers = function (
   lat: number,
   lng: number,
   radiusKm: number,
+  tenantId: string,
   vehicleType?: string
 ) {
   const query: Record<string, unknown> = {
@@ -133,6 +141,7 @@ UserSchema.statics.findNearbyDrivers = function (
     isAvailable: true,
     isActive: true,
     kycStatus: 'approved',
+    tenantId,
     currentLocation: {
       $nearSphere: {
         $geometry: { type: 'Point', coordinates: [lng, lat] },

@@ -28,10 +28,12 @@ export function useAuth() {
       const { user, token } = res.data.data;
       setAuth(user, token);
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`);
-      router.push(user.role === 'admin' ? '/admin' : user.role === 'driver' ? '/driver' : '/rider');
+      const target = user.role === 'admin' ? '/admin' : user.role === 'driver' ? '/driver' : '/rider';
+      window.location.href = target;
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.error || 'Login failed');
+      const msg = err.response?.data?.error?.message || err.response?.data?.message || 'Login failed';
+      toast.error(msg);
     },
   });
 

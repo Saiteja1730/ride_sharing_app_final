@@ -39,7 +39,8 @@ export const getNearbyDrivers = async (
       return;
     }
 
-    const drivers = await (User as any).findNearbyDrivers(lat, lng, radius, vehicleType);
+    const { tenantId } = req.user!;
+    const drivers = await (User as any).findNearbyDrivers(lat, lng, radius, tenantId || 'default-tenant', vehicleType);
 
     const result = drivers.map((d: any) => {
       const coords = mongoGeoToCoords(d.currentLocation.coordinates);
@@ -170,6 +171,7 @@ export const getRideRequests = async (
 
     const rides = await Ride.find({
       status: 'searching',
+      tenantId: driver.tenantId,
       vehicleType: driver.vehicleInfo?.type,
       'pickupLocation.coordinates': {
         $nearSphere: {
@@ -200,7 +202,7 @@ export const acceptRide = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { userId } = req.user!;
+    const { userId, tenantId } = req.user!;
     const { rideId } = req.params;
 
     const driver = await User.findById(userId);
@@ -209,22 +211,51 @@ export const acceptRide = async (
       throw new HttpError('KYC approval required to accept rides', 403);
     }
 
-    const activeRide = await Ride.findActiveRide(userId, 'driver');
+    const activeRide = await Ride.findActiveRide(userId, 'driver', tenantId || 'default-tenant');
     if (activeRide) throw new HttpError('You already have an active ride', 409);
 
-    const ride = await Ride.findOneAndUpdate(
-      { _id: rideId, status: 'searching' },
-      {
-        $set: {
-          driver: userId,
-          status: 'accepted',
-        },
-        $push: { timeline: { status: 'accepted', timestamp: new Date() } },
-      },
-      { new: true }
-    ).populate('rider driver', 'name phone rating avatar vehicleInfo');
+    // Atomic driver update to prevent accepting multiple rides concurrently
+    const updatedDriver = await User.findOneAndUpdate(
+      { _id: userId, isAvailable: true, kycStatus: 'approved' },
+      { $set: { isAvailable: false } }
+    );
+    if (!updatedDriver) {
+      throw new HttpError('You are no longer available to accept rides or already have an active ride.', 409);
+    }
 
-    if (!ride) throw new HttpError('Ride not available or already taken', 404);
+    // Acquire Distributed Lock to eliminate driver assignment race conditions
+    const { distributedLockService } = await import('../infrastructure/redis/lock.service');
+    const lockValue = await distributedLockService.acquireLock(`ride:accept:${rideId}`, 3000);
+    if (!lockValue) {
+      await User.findByIdAndUpdate(userId, { isAvailable: true });
+      throw new HttpError('Another driver is currently accepting this ride request. Please try another.', 409);
+    }
+
+    let ride;
+    try {
+      ride = await Ride.findOneAndUpdate(
+        { _id: rideId, status: 'searching', tenantId: tenantId || 'default-tenant' },
+        {
+          $set: {
+            driver: userId,
+            status: 'accepted',
+          },
+          $push: { timeline: { status: 'accepted', timestamp: new Date() } },
+        },
+        { new: true }
+      ).populate('rider driver', 'name phone rating avatar vehicleInfo');
+      
+      if (!ride) {
+        await User.findByIdAndUpdate(userId, { isAvailable: true });
+        throw new HttpError('Ride not available or already taken', 404);
+      }
+    } catch(err) {
+      if (!ride) await User.findByIdAndUpdate(userId, { isAvailable: true });
+      throw err;
+    } finally {
+      await distributedLockService.releaseLock(`ride:accept:${rideId}`, lockValue);
+    }
+
 
     await invalidateCache(`history:${userId}:*`);
 
@@ -268,20 +299,38 @@ export const updateRideStatus = async (
       ongoing: 'completed',
     };
 
-    const ride = await Ride.findOne({ _id: rideId, driver: userId });
-    if (!ride) throw new HttpError('Ride not found', 404);
-
-    if (validTransitions[ride.status] !== status) {
-      throw new HttpError(
-        `Invalid status transition: ${ride.status} → ${status}`,
-        400
-      );
+    const expectedOldStatus = Object.keys(validTransitions).find(k => validTransitions[k] === status);
+    
+    if (!expectedOldStatus) {
+      throw new HttpError('Invalid target status', 400);
     }
 
-    ride.status = status;
-    ride.timeline.push({ status, timestamp: new Date() });
+    const ride = await Ride.findOneAndUpdate(
+      { 
+        _id: rideId, 
+        driver: userId, 
+        tenantId: req.user!.tenantId || 'default-tenant',
+        status: expectedOldStatus
+      },
+      {
+        $set: { status },
+        $push: { timeline: { status, timestamp: new Date() } }
+      },
+      { new: true }
+    );
+
+    if (!ride) {
+      // Check if ride exists but status is wrong
+      const existingRide = await Ride.findOne({ _id: rideId, driver: userId });
+      if (existingRide) {
+         throw new HttpError(`Invalid status transition: ${existingRide.status} → ${status}`, 400);
+      }
+      throw new HttpError('Ride not found', 404);
+    }
+
     if (status === 'completed') {
       ride.completedAt = new Date();
+      await ride.save(); // save the completedAt separately or update it in the findOneAndUpdate above
       await User.findByIdAndUpdate(userId, {
         $inc: { 
           totalRides: 1, 

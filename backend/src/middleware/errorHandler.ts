@@ -1,51 +1,53 @@
 import { Request, Response, NextFunction } from 'express';
+import { AppError, HttpError } from '../utils/errors';
 import { logger } from '../utils/logger';
+import { config } from '../config';
 
-export interface AppError extends Error {
-  statusCode?: number;
-  isOperational?: boolean;
-  errors?: { field: string; message: string }[];
-}
+export { HttpError };
 
-export class HttpError extends Error implements AppError {
-  statusCode: number;
-  isOperational: boolean;
-  errors?: { field: string; message: string }[];
-
-  constructor(message: string, statusCode = 500, errors?: { field: string; message: string }[]) {
-    super(message);
-    this.statusCode = statusCode;
-    this.isOperational = true;
-    this.errors = errors;
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
 
 export const errorHandler = (
-  err: AppError,
+  err: Error,
   req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
+  const requestId = (req as any).requestId || 'N/A';
 
-  logger.error(`[${req.method}] ${req.path} → ${statusCode}: ${message}`, {
-    stack: err.stack,
-    errors: err.errors,
-  });
+  if (err instanceof AppError) {
+    logger.warn(`[${requestId}] ${err.statusCode} - ${err.message}`);
+    res.status(err.statusCode).json({
+      success: false,
+      error: {
+        code: err.name,
+        message: err.message,
+      },
+      requestId,
+    });
+    return;
+  }
 
-  res.status(statusCode).json({
+  // Unhandled / Operational Failures
+  logger.error(`[${requestId}] 500 - Unhandled Server Error: ${err.message}`, { stack: err.stack });
+
+  res.status(500).json({
     success: false,
-    error: message,
-    ...(err.errors && { errors: err.errors }),
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    error: {
+      code: 'INTERNAL_SERVER_ERROR',
+      message: config.isProduction ? 'An unexpected server error occurred' : err.message,
+    },
+    requestId,
   });
 };
 
-export const notFound = (req: Request, res: Response): void => {
+export const notFound = (req: Request, res: Response, _next: NextFunction): void => {
+  const requestId = (req as any).requestId || 'N/A';
   res.status(404).json({
     success: false,
-    error: `Route not found: ${req.method} ${req.originalUrl}`,
+    error: {
+      code: 'NOT_FOUND',
+      message: `Route '${req.originalUrl}' not found`,
+    },
+    requestId,
   });
 };

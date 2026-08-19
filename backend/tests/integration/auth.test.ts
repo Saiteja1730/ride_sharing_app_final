@@ -17,8 +17,19 @@ jest.mock('ioredis', () => {
     connect: jest.fn().mockResolvedValue(undefined),
     quit: jest.fn().mockResolvedValue(undefined),
     on: jest.fn(),
+    sadd: jest.fn().mockResolvedValue(1),
+    srem: jest.fn().mockResolvedValue(1),
+    smembers: jest.fn().mockResolvedValue([]),
+    status: 'ready',
+    incr: jest.fn().mockResolvedValue(1),
+    expire: jest.fn().mockResolvedValue(1),
+    ttl: jest.fn().mockResolvedValue(10),
+    set: jest.fn().mockResolvedValue('OK'),
+    eval: jest.fn().mockResolvedValue(1),
   };
-  return jest.fn(() => mockRedis);
+  const mockFn = jest.fn(() => mockRedis);
+  (mockFn as any).Redis = mockFn;
+  return mockFn;
 });
 
 jest.mock('../../src/config', () => ({
@@ -46,10 +57,16 @@ beforeAll(async () => {
   // Build a minimal test app
   const { default: authRoutes } = await import('../../src/routes/auth.routes');
   const { errorHandler } = await import('../../src/middleware/errorHandler');
+  const cookieParser = require('cookie-parser');
 
   app = express();
+  app.use(cookieParser());
   app.use(express.json());
   app.use('/api/auth', authRoutes);
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error('Test Error Handler Caught:', err);
+    next(err);
+  });
   app.use(errorHandler);
 });
 
@@ -79,7 +96,7 @@ describe('Auth API', () => {
       const res = await request(app).post('/api/auth/register').send(testUser);
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.token).toBeDefined();
+      expect(res.headers['set-cookie']).toBeDefined();
       expect(res.body.data.user.email).toBe(testUser.email);
       expect(res.body.data.user.password).toBeUndefined(); // password hidden
     });
@@ -124,7 +141,7 @@ describe('Auth API', () => {
         password: testUser.password,
       });
       expect(res.status).toBe(200);
-      expect(res.body.data.token).toBeDefined();
+      expect(res.headers['set-cookie']).toBeDefined();
     });
 
     it('should return 401 for wrong password', async () => {
@@ -150,13 +167,13 @@ describe('Auth API', () => {
       expect(res.status).toBe(401);
     });
 
-    it('should return user profile with valid token', async () => {
+    it('should return user profile with valid cookie', async () => {
       const registerRes = await request(app).post('/api/auth/register').send(testUser);
-      const { token } = registerRes.body.data;
+      const cookies = registerRes.headers['set-cookie'];
 
       const res = await request(app)
         .get('/api/auth/me')
-        .set('Authorization', `Bearer ${token}`);
+        .set('Cookie', cookies);
 
       expect(res.status).toBe(200);
       expect(res.body.data.email).toBe(testUser.email);

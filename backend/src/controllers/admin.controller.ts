@@ -86,9 +86,9 @@ export const listUsers = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const role = req.query.role as string;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const role = typeof req.query.role === 'string' ? req.query.role : undefined;
 
     const filter = role ? { role } : {};
     const [users, total] = await Promise.all([
@@ -204,9 +204,9 @@ export const listRides = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 50;
-    const status = req.query.status as string;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 50));
+    const status = typeof req.query.status === 'string' ? req.query.status : undefined;
 
     const query = status ? { status } : {};
 

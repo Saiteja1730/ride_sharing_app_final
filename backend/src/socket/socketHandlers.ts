@@ -120,8 +120,16 @@ export function registerSocketHandlers(io: Server): void {
       }
     });
 
-    // ─── Rider: join ride room after booking ───
-    socket.on('join:room', (roomId: string) => {
+    // ─── Rider / Driver: join ride room after authorization check ───
+    socket.on('join:room', async (roomId: string) => {
+      if (roomId.startsWith('ride:')) {
+        const rideId = roomId.replace('ride:', '');
+        const ride = await Ride.findById(rideId);
+        if (!ride || (ride.rider.toString() !== userId && ride.driver?.toString() !== userId && role !== 'admin')) {
+          socket.emit('error', 'Unauthorized to join room');
+          return;
+        }
+      }
       socket.join(roomId);
       logger.debug(`${userId} joined room: ${roomId}`);
     });
@@ -129,6 +137,7 @@ export function registerSocketHandlers(io: Server): void {
     socket.on('leave:room', (roomId: string) => {
       socket.leave(roomId);
     });
+
 
     // ─── Driver: accept ride via socket ───
     socket.on('ride:accept', async (rideId: string) => {

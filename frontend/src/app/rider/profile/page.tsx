@@ -90,22 +90,22 @@ export default function ProfilePage() {
   const isPhoneValid = touchedFields.phone && !errors.phone;
 
   return (
-    <div className="space-y-6 max-w-xl animate-fade-in">
-      <h1 className="text-3xl font-display font-bold text-white">Profile</h1>
+    <div className="space-y-6 max-w-xl mx-auto animate-fade-in pb-12">
+      <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Profile</h1>
 
       {/* Avatar + stats */}
-      <div className="glass-card p-6">
+      <div className="bg-white p-6 rounded-2xl shadow-card border border-slate-200">
         <div className="flex items-center gap-5 mb-6">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-400 to-brand-700 flex items-center justify-center text-3xl font-bold text-white shadow-glow">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-900 flex items-center justify-center text-3xl font-bold text-white shadow-sm">
             {profile?.name?.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="text-2xl font-display font-bold text-white">{profile?.name}</p>
-            <p className="text-slate-400 capitalize text-sm mt-0.5">{profile?.role}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-              <span className="text-sm text-white font-medium">{profile?.rating?.toFixed(1)}</span>
-              <span className="text-slate-500 text-xs">({profile?.ratingCount ?? 0} ratings)</span>
+            <p className="text-2xl font-display font-bold text-slate-900">{profile?.name}</p>
+            <p className="text-slate-500 capitalize text-sm mt-0.5 font-medium">{profile?.role}</p>
+            <div className="flex items-center gap-1 mt-1.5">
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <span className="text-sm text-slate-900 font-bold">{profile?.rating?.toFixed(1)}</span>
+              <span className="text-slate-500 text-xs font-medium">({profile?.ratingCount ?? 0} ratings)</span>
             </div>
           </div>
         </div>
@@ -115,40 +115,40 @@ export default function ProfilePage() {
             { label: 'Total Rides', value: profile?.totalRides ?? 0, icon: Car },
             { label: 'Account Status', value: profile?.isActive ? 'Active' : 'Inactive', icon: User },
           ].map(({ label, value, icon: Icon }) => (
-            <div key={label} className="bg-white/3 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-1">
+            <div key={label} className="bg-slate-50 border border-slate-100 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-1.5">
                 <Icon className="w-4 h-4 text-slate-500" />
-                <p className="text-xs text-slate-500">{label}</p>
+                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">{label}</p>
               </div>
-              <p className="text-lg font-bold text-white">{value}</p>
+              <p className="text-xl font-black text-slate-900">{value}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Editable info */}
-      <div className="glass-card p-6">
+      <div className="bg-white p-6 rounded-2xl shadow-card border border-slate-200">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-semibold text-white">Personal Information</h2>
+          <h2 className="font-bold text-slate-900 text-lg">Personal Information</h2>
           {!editing ? (
-            <Button variant="ghost" size="sm" onClick={() => setEditing(true)} icon={<Edit2 className="w-3.5 h-3.5" />}>
+            <Button variant="secondary" size="sm" onClick={() => setEditing(true)} icon={<Edit2 className="w-3.5 h-3.5" />} className="bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold border-slate-200">
               Edit
             </Button>
           ) : (
-            <button onClick={() => setEditing(false)} className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-colors">
-              <X className="w-4 h-4" />
+            <button onClick={() => setEditing(false)} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>
 
         <div className="space-y-4">
           {editing ? (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <Input
                 id="name"
                 label="Full Name"
                 icon={<User className="w-4 h-4" />}
-                rightIcon={isNameValid ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : undefined}
+                rightIcon={isNameValid ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : undefined}
                 error={errors.name?.message}
                 {...register('name')}
               />
@@ -156,13 +156,13 @@ export default function ProfilePage() {
                 id="phone"
                 label="Phone"
                 icon={<Phone className="w-4 h-4" />}
-                rightIcon={isPhoneValid ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : undefined}
+                rightIcon={isPhoneValid ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : undefined}
                 error={errors.phone?.message}
                 {...register('phone')}
               />
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full font-bold shadow-sm"
                 loading={updateMutation.isPending}
                 disabled={!isValid || updateMutation.isPending}
                 icon={<Save className="w-4 h-4" />}
@@ -171,17 +171,19 @@ export default function ProfilePage() {
               </Button>
             </form>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-0 divide-y divide-slate-100">
               {[
                 { label: 'Full Name', value: profile?.name, icon: User },
                 { label: 'Email', value: profile?.email, icon: Mail },
                 { label: 'Phone', value: profile?.phone, icon: Phone },
               ].map(({ label, value, icon: Icon }) => (
-                <div key={label} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
-                  <Icon className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                <div key={label} className="flex items-center gap-4 py-4">
+                  <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-slate-500" />
+                  </div>
                   <div>
-                    <p className="text-xs text-slate-500">{label}</p>
-                    <p className="text-sm text-white mt-0.5">{value}</p>
+                    <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">{label}</p>
+                    <p className="text-sm font-bold text-slate-900 mt-0.5">{value}</p>
                   </div>
                 </div>
               ))}
@@ -192,9 +194,9 @@ export default function ProfilePage() {
 
       {/* Vehicle info (driver only) */}
       {profile?.role === 'driver' && profile?.vehicleInfo && (
-        <div className="glass-card p-6">
-          <h2 className="font-semibold text-white mb-4">Vehicle Information</h2>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="bg-white p-6 rounded-2xl shadow-card border border-slate-200">
+          <h2 className="font-bold text-slate-900 text-lg mb-5">Vehicle Information</h2>
+          <div className="grid grid-cols-2 gap-4">
             {[
               ['Make', profile.vehicleInfo.make],
               ['Model', profile.vehicleInfo.model],
@@ -203,9 +205,9 @@ export default function ProfilePage() {
               ['Type', profile.vehicleInfo.type],
               ['Year', profile.vehicleInfo.year],
             ].map(([label, value]) => (
-              <div key={label} className="bg-white/3 rounded-lg p-3">
-                <p className="text-xs text-slate-500">{label}</p>
-                <p className="text-white font-medium mt-0.5 capitalize">{value}</p>
+              <div key={label} className="bg-slate-50 rounded-xl border border-slate-100 p-4 shadow-sm">
+                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">{label}</p>
+                <p className="text-sm font-black text-slate-900 mt-1 capitalize">{value}</p>
               </div>
             ))}
           </div>

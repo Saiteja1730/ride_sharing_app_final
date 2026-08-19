@@ -23,7 +23,9 @@ export interface IRideDocument extends Document {
   pickupLocation: ILocationPoint;
   dropoffLocation: ILocationPoint;
   status: RideStatus;
+  tenantId: string;
   vehicleType: 'economy' | 'premium' | 'suv' | 'xl' | 'bike' | 'auto' | 'mini' | 'sedan';
+
   fare: {
     baseFare: number;
     distanceFare: number;
@@ -56,7 +58,7 @@ export interface IRideDocument extends Document {
 }
 
 interface IRideModel extends Model<IRideDocument> {
-  findActiveRide(userId: string, role: 'rider' | 'driver'): Promise<IRideDocument | null>;
+  findActiveRide(userId: string, role: 'rider' | 'driver', tenantId: string): Promise<IRideDocument | null>;
 }
 
 const LocationPointSchema = new Schema<ILocationPoint>(
@@ -82,6 +84,8 @@ const RideSchema = new Schema<IRideDocument>(
       enum: ['searching', 'accepted', 'arriving', 'ongoing', 'completed', 'cancelled'],
       default: 'searching',
     },
+    tenantId: { type: String, default: 'default-tenant', index: true },
+
     vehicleType: {
       type: String,
       enum: ['economy', 'premium', 'suv', 'xl', 'bike', 'auto', 'mini', 'sedan'],
@@ -121,6 +125,8 @@ const RideSchema = new Schema<IRideDocument>(
 );
 
 // ---- Indexes ----
+RideSchema.index({ tenantId: 1, rider: 1, status: 1, createdAt: -1 });
+RideSchema.index({ tenantId: 1, driver: 1, status: 1, createdAt: -1 });
 RideSchema.index({ rider: 1, status: 1 });
 RideSchema.index({ driver: 1, status: 1 });
 RideSchema.index({ status: 1, createdAt: -1 });
@@ -137,14 +143,30 @@ RideSchema.index({
   'dropoffLocation.address': 'text',
 });
 
+// Authoritative Ride State Machine Transitions
+export const isValidTransition = (from: RideStatus, to: RideStatus): boolean => {
+  const transitions: Record<RideStatus, RideStatus[]> = {
+    searching: ['accepted', 'cancelled'],
+    accepted: ['arriving', 'cancelled'],
+    arriving: ['ongoing', 'cancelled'],
+    ongoing: ['completed'],
+    completed: [],
+    cancelled: [],
+  };
+  return transitions[from]?.includes(to) || false;
+};
+
+
 // ---- Static methods ----
 RideSchema.statics.findActiveRide = function (
   userId: string,
-  role: 'rider' | 'driver'
+  role: 'rider' | 'driver',
+  tenantId: string
 ) {
   const field = role === 'rider' ? 'rider' : 'driver';
   return this.findOne({
     [field]: userId,
+    tenantId,
     status: { $in: ['searching', 'accepted', 'arriving', 'ongoing'] },
   }).populate('rider driver', '-password');
 };

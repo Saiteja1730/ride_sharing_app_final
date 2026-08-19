@@ -13,6 +13,8 @@ import { authenticate, authorize } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { rideRateLimiter } from '../middleware/rateLimiter';
 
+import { enforceIdempotency } from '../middleware/idempotency';
+
 const router = Router();
 
 /**
@@ -39,7 +41,9 @@ router.post(
   '/',
   authenticate,
   authorize('rider'),
+  enforceIdempotency({ ttlSeconds: 86400 }),
   rideRateLimiter,
+
   [
     body('pickupLocation.address').notEmpty(),
     body('pickupLocation.coordinates.lat').isFloat(),

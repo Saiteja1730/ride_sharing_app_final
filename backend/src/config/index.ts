@@ -5,7 +5,17 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const isDocker = process.env.NODE_ENV === 'production' || process.env.DOCKER === 'true';
 
+if (process.env.NODE_ENV === 'production') {
+  const missingEnvs: string[] = [];
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.includes('fallback')) missingEnvs.push('JWT_SECRET');
+  if (!process.env.MONGODB_URI) missingEnvs.push('MONGODB_URI');
+  if (missingEnvs.length > 0) {
+    throw new Error(`[CRITICAL] Missing or unsafe production environment variables: ${missingEnvs.join(', ')}`);
+  }
+}
+
 export const config = {
+
   nodeEnv: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '4000', 10),
   isProduction: process.env.NODE_ENV === 'production',

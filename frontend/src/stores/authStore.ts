@@ -34,10 +34,12 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isHydrated: boolean;
   setAuth: (user: User, token: string) => void;
   updateUser: (updates: Partial<User>) => void;
   clearAuth: () => void;
   setLoading: (loading: boolean) => void;
+  setHydrated: (hydrated: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -47,9 +49,10 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       isLoading: false,
+      isHydrated: false,
 
       setAuth: (user, token) =>
-        set({ user, token, isAuthenticated: true, isLoading: false }),
+        set({ user, token, isAuthenticated: true, isLoading: false, isHydrated: true }),
 
       updateUser: (updates) =>
         set((state) => ({
@@ -57,14 +60,20 @@ export const useAuthStore = create<AuthState>()(
         })),
 
       clearAuth: () =>
-        set({ user: null, token: null, isAuthenticated: false }),
+        set({ user: null, token: null, isAuthenticated: false, isHydrated: true }),
 
       setLoading: (isLoading) => set({ isLoading }),
+      setHydrated: (isHydrated) => set({ isHydrated }),
     }),
     {
       name: 'rideshare-auth',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHydrated(true);
+        }
+      },
     }
   )
 );

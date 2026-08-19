@@ -435,7 +435,7 @@ function RegisterForm() {
               size="lg"
               loading={isRegistering}
               className="w-full mt-2"
-              disabled={isRegistering || !isValid}
+              disabled={isRegistering}
             >
               Create Account <ArrowRight className="w-4 h-4" />
             </Button>

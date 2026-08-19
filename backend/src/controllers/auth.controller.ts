@@ -5,10 +5,11 @@ import { config } from '../config';
 import { HttpError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 
-const signToken = (userId: string, role: string, email: string): string =>
-  jwt.sign({ userId, role, email }, config.jwt.secret, {
-    expiresIn: config.jwt.expiresIn,
-  } as jwt.SignOptions);
+import { setAuthCookies, clearAuthCookies, COOKIE_NAMES } from '../modules/auth/cookie.helper';
+import { tokenService } from '../modules/auth/token.service';
+
+const signToken = (userId: string, role: string, tenantId: string): string =>
+  tokenService.generateAccessToken({ userId, role, tenantId });
 
 /**
  * @swagger
@@ -24,6 +25,7 @@ export const register = async (
 ): Promise<void> => {
   try {
     const { name, email, password, phone, role } = req.body;
+    let safeRole = role === 'driver' ? 'driver' : 'rider'; // Prevent mass assignment of admin role
     let vehicleInfo;
     if (req.body.vehicleInfo) {
       vehicleInfo = typeof req.body.vehicleInfo === 'string' ? JSON.parse(req.body.vehicleInfo) : req.body.vehicleInfo;
@@ -42,14 +44,19 @@ export const register = async (
       };
     }
 
-    const user = await User.create({ name, email, password, phone, role, vehicleInfo, documents });
-    const token = signToken(user.id, user.role, user.email);
+    const user = await User.create({ name, email, password, phone, role: safeRole, vehicleInfo, documents, tenantId: 'default-tenant' });
+    
+    const token = signToken(user.id, user.role, user.tenantId);
+    const refreshToken = tokenService.generateRefreshToken();
+    await tokenService.storeRefreshToken(user.id, refreshToken);
+    
+    setAuthCookies(res, token, refreshToken);
 
     logger.info(`New user registered: ${email} (${role})`);
 
     res.status(201).json({
       success: true,
-      data: { token, user },
+      data: { user, token },
       message: 'Registration successful',
     });
   } catch (err) {
@@ -78,15 +85,77 @@ export const login = async (
     const isMatch = await user.comparePassword(password);
     if (!isMatch) throw new HttpError('Invalid credentials', 401);
 
-    const token = signToken(user.id, user.role, user.email);
+    const token = signToken(user.id, user.role, user.tenantId);
+    const refreshToken = tokenService.generateRefreshToken();
+    await tokenService.storeRefreshToken(user.id, refreshToken);
+    
+    setAuthCookies(res, token, refreshToken);
 
     logger.info(`User logged in: ${email}`);
 
     res.json({
       success: true,
-      data: { token, user },
+      data: { user, token },
       message: 'Login successful',
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Logout user
+ *     security:
+ *       - bearerAuth: []
+ */
+export const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const refreshToken = req.cookies?.[COOKIE_NAMES.REFRESH_TOKEN];
+    if (refreshToken) {
+      await tokenService.revokeRefreshToken(refreshToken);
+    }
+    clearAuthCookies(res);
+    res.json({ success: true, message: 'Logout successful' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Refresh access token
+ */
+export const refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const oldRefreshToken = req.cookies?.[COOKIE_NAMES.REFRESH_TOKEN];
+    if (!oldRefreshToken) throw new HttpError('Refresh token missing', 401);
+
+    const decoded = await tokenService.consumeRefreshToken(oldRefreshToken);
+    if (!decoded) {
+      clearAuthCookies(res);
+      throw new HttpError('Invalid or reused refresh token', 401);
+    }
+
+    const user = await User.findById(decoded.userId);
+    if (!user || !user.isActive) {
+      clearAuthCookies(res);
+      throw new HttpError('User not found or inactive', 401);
+    }
+
+    const newAccessToken = signToken(user.id, user.role, user.tenantId);
+    const newRefreshToken = tokenService.generateRefreshToken();
+    await tokenService.storeRefreshToken(user.id, newRefreshToken);
+
+    setAuthCookies(res, newAccessToken, newRefreshToken);
+
+    res.json({ success: true, message: 'Tokens refreshed' });
   } catch (err) {
     next(err);
   }

@@ -13,12 +13,14 @@
   ],
   "coverageReporters": ["text", "lcov", "html"],
   "coverageDirectory": "coverage",
-  "setupFilesAfterFramework": [],
   "testTimeout": 30000,
-  "globals": {
-    "ts-jest": {
-      "tsconfig": "tsconfig.json",
-      "diagnostics": false
-    }
+  "transform": {
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      {
+        "tsconfig": "tsconfig.json",
+        "diagnostics": false
+      }
+    ]
   }
 }

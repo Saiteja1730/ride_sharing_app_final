@@ -35,7 +35,7 @@ function DonutChart({ segments }: { segments: { label: string; value: number; co
   return (
     <div className="flex items-center gap-6">
       <svg viewBox="0 0 120 120" className="w-28 h-28 flex-shrink-0">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="14" />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f1f5f9" strokeWidth="14" />
         {segments.map((seg, i) => {
           const pct = seg.value / total;
           const offset = cumulative;
@@ -55,7 +55,7 @@ function DonutChart({ segments }: { segments: { label: string; value: number; co
             />
           );
         })}
-        <text x={cx} y={cy - 4} textAnchor="middle" className="text-white" fill="white" fontSize="14" fontWeight="bold">{total}</text>
+        <text x={cx} y={cy - 4} textAnchor="middle" className="text-slate-900 font-bold" fill="#0f172a" fontSize="14" fontWeight="bold">{total}</text>
         <text x={cx} y={cy + 12} textAnchor="middle" fill="#64748b" fontSize="7">total</text>
       </svg>
       <div className="space-y-2 flex-1">
@@ -63,11 +63,11 @@ function DonutChart({ segments }: { segments: { label: string; value: number; co
           <div key={i} className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: seg.color }} />
-              <span className="text-xs text-slate-400 truncate">{seg.label}</span>
+              <span className="text-xs font-bold text-slate-600 truncate">{seg.label}</span>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <span className="text-xs font-bold text-white">{seg.value}</span>
-              <span className="text-[10px] text-slate-600">{((seg.value / total) * 100).toFixed(0)}%</span>
+              <span className="text-xs font-bold text-slate-900">{seg.value}</span>
+              <span className="text-[10px] text-slate-400 font-medium">{((seg.value / total) * 100).toFixed(0)}%</span>
             </div>
           </div>
         ))}
@@ -93,19 +93,19 @@ export default function AdminAnalyticsPage() {
   };
 
   const kpis = [
-    { label: 'Total Rides',       value: '12,847',  change: '+18.4%', up: true,  icon: MapPin,      color: 'from-brand-500 to-brand-700',   data: slice(rideData)    },
-    { label: 'Gross Revenue',     value: '₹9.84L',  change: '+23.1%', up: true,  icon: DollarSign,  color: 'from-green-500 to-emerald-700', data: slice(revenueData)  },
-    { label: 'Active Users',      value: '2,847',   change: '+12.0%', up: true,  icon: Users,       color: 'from-violet-500 to-purple-700', data: slice(userGrowth)   },
-    { label: 'Avg Fare',          value: '₹185.40', change: '+4.8%',  up: true,  icon: TrendingUp,  color: 'from-cyan-500 to-teal-700',     data: slice(rideData).map(v => v * 0.6) },
-    { label: 'Cancellation Rate', value: '8.2%',    change: '-1.3%',  up: false, icon: TrendingDown,color: 'from-red-500 to-rose-700',      data: slice(rideData).map(v => v * 0.08)},
-    { label: 'Avg Rating',        value: '4.78 ★',  change: '+0.06',  up: true,  icon: Star,        color: 'from-amber-500 to-orange-700',  data: slice(rideData).map(() => 4.7 + Math.random() * 0.2) },
+    { label: 'Total Rides',       value: '12,847',  change: '+18.4%', up: true,  icon: MapPin,      color: 'from-brand-600 to-brand-900',   data: slice(rideData)    },
+    { label: 'Gross Revenue',     value: '₹9.84L',  change: '+23.1%', up: true,  icon: DollarSign,  color: 'from-green-600 to-emerald-800', data: slice(revenueData)  },
+    { label: 'Active Users',      value: '2,847',   change: '+12.0%', up: true,  icon: Users,       color: 'from-violet-600 to-purple-800', data: slice(userGrowth)   },
+    { label: 'Avg Fare',          value: '₹185.40', change: '+4.8%',  up: true,  icon: TrendingUp,  color: 'from-cyan-600 to-teal-800',     data: slice(rideData).map(v => v * 0.6) },
+    { label: 'Cancellation Rate', value: '8.2%',    change: '-1.3%',  up: false, icon: TrendingDown,color: 'from-red-600 to-rose-800',      data: slice(rideData).map(v => v * 0.08)},
+    { label: 'Avg Rating',        value: '4.78 ★',  change: '+0.06',  up: true,  icon: Star,        color: 'from-amber-600 to-orange-800',  data: slice(rideData).map(() => 4.7 + Math.random() * 0.2) },
   ];
 
   const vehicleSegments = [
-    { label: 'Economy',  value: 6840, color: '#4c63f6' },
+    { label: 'Economy',  value: 6840, color: '#2563eb' },
     { label: 'Premium',  value: 3214, color: '#7c3aed' },
-    { label: 'SUV',      value: 2102, color: '#f59e0b' },
-    { label: 'XL',       value:  691, color: '#06b6d4' },
+    { label: 'SUV',      value: 2102, color: '#d97706' },
+    { label: 'XL',       value:  691, color: '#0891b2' },
   ];
 
   const zoneData = [
@@ -121,20 +121,20 @@ export default function AdminAnalyticsPage() {
   const peakHours = [2, 3, 2, 1, 2, 4, 8, 14, 22, 31, 40, 47, 43, 38, 29, 41, 53, 61, 58, 47, 39, 28, 18, 10];
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-12 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-white">Analytics</h1>
-          <p className="text-slate-400 mt-1">Deep platform insights and growth metrics</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Analytics</h1>
+          <p className="text-sm font-medium text-slate-500 mt-1">Deep platform insights and growth metrics</p>
         </div>
-        <div className="flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-xl">
+        <div className="flex items-center gap-1 bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm">
           {PERIODS.map(p => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                period === p ? 'bg-violet-500 text-white shadow' : 'text-slate-400 hover:text-white'
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
+                period === p ? 'bg-brand-900 text-white shadow' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               {p}
@@ -144,27 +144,27 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         {kpis.map(({ label, value, change, up, icon: Icon, color, data }) => (
-          <div key={label} className="glass-card p-5 hover:border-white/20 transition-all duration-300 overflow-hidden relative">
+          <div key={label} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all duration-300 overflow-hidden relative">
             {/* Mini sparkline bg */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-              <AreaChart data={data} color={up ? '#22c55e' : '#ef4444'} height={80} />
+            <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <AreaChart data={data} color={up ? '#16a34a' : '#dc2626'} height={80} />
             </div>
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center`}>
-                  <Icon className="w-4 h-4 text-white" />
+              <div className="flex items-center justify-between mb-3.5">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-sm`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                  up ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border flex items-center gap-1 uppercase tracking-wider ${
+                  up ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
                 }`}>
-                  {up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                  {up ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                   {change}
                 </span>
               </div>
-              <p className="text-2xl font-display font-bold text-white">{value}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{label}</p>
+              <p className="text-3xl font-display font-extrabold text-slate-900">{value}</p>
+              <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">{label}</p>
             </div>
           </div>
         ))}
@@ -173,28 +173,28 @@ export default function AdminAnalyticsPage() {
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Rides over time */}
-        <div className="lg:col-span-2 glass-card p-5 space-y-4">
+        <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-semibold text-white">Ride Volume Over Time</p>
-              <p className="text-xs text-slate-500">Daily dispatched trips — {period}</p>
+              <p className="font-bold text-slate-900 text-lg">Ride Volume Over Time</p>
+              <p className="text-xs font-medium text-slate-500">Daily dispatched trips — {period}</p>
             </div>
-            <span className="text-xs text-green-400 font-bold px-2 py-0.5 bg-green-500/10 rounded-full">+18.4%</span>
+            <span className="text-xs text-green-700 font-bold px-2.5 py-1 bg-green-50 border border-green-200 rounded-md shadow-sm">+18.4%</span>
           </div>
           <div className="h-40">
-            <AreaChart data={slice(rideData)} color="#4c63f6" height={160} />
+            <AreaChart data={slice(rideData)} color="#2563eb" height={160} />
           </div>
-          <div className="flex items-center justify-between text-xs text-slate-600 pt-1">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider pt-1">
             <span>{period === '7D' ? '7 days ago' : period === '30D' ? '30 days ago' : '90 days ago'}</span>
             <span>Today</span>
           </div>
         </div>
 
         {/* Vehicle type mix */}
-        <div className="glass-card p-5 space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
           <div>
-            <p className="font-semibold text-white">Vehicle Type Mix</p>
-            <p className="text-xs text-slate-500">Ride distribution by class</p>
+            <p className="font-bold text-slate-900 text-lg">Vehicle Type Mix</p>
+            <p className="text-xs font-medium text-slate-500">Ride distribution by class</p>
           </div>
           <DonutChart segments={vehicleSegments} />
         </div>
@@ -203,24 +203,24 @@ export default function AdminAnalyticsPage() {
       {/* Revenue trend + Peak hours */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue */}
-        <div className="glass-card p-5 space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-semibold text-white">Revenue Trend</p>
-              <p className="text-xs text-slate-500">Daily gross revenue (₹)</p>
+              <p className="font-bold text-slate-900 text-lg">Revenue Trend</p>
+              <p className="text-xs font-medium text-slate-500">Daily gross revenue (₹)</p>
             </div>
-            <span className="text-xs text-green-400 font-bold px-2 py-0.5 bg-green-500/10 rounded-full">+23.1%</span>
+            <span className="text-xs text-green-700 font-bold px-2.5 py-1 bg-green-50 border border-green-200 rounded-md shadow-sm">+23.1%</span>
           </div>
           <div className="h-32">
-            <AreaChart data={slice(revenueData)} color="#22c55e" height={128} />
+            <AreaChart data={slice(revenueData)} color="#16a34a" height={128} />
           </div>
         </div>
 
         {/* Peak Hours */}
-        <div className="glass-card p-5 space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
           <div>
-            <p className="font-semibold text-white">Peak Hour Distribution</p>
-            <p className="text-xs text-slate-500">Average active rides per hour</p>
+            <p className="font-bold text-slate-900 text-lg">Peak Hour Distribution</p>
+            <p className="text-xs font-medium text-slate-500">Average active rides per hour</p>
           </div>
           <div className="flex items-end gap-1 h-24">
             {peakHours.map((v, i) => {
@@ -232,65 +232,65 @@ export default function AdminAnalyticsPage() {
                   <div className="relative w-full h-20 flex items-end justify-center">
                     <div
                       style={{ height: `${pct}%` }}
-                      className={`w-full rounded-t transition-all duration-500 ${isPeak ? 'bg-gradient-to-t from-violet-600 to-violet-400' : 'bg-white/10 group-hover:bg-white/20'}`}
+                      className={`w-full rounded-t transition-all duration-500 ${isPeak ? 'bg-gradient-to-t from-violet-600 to-violet-400' : 'bg-slate-100 group-hover:bg-slate-200'}`}
                     />
                   </div>
-                  {i % 4 === 0 && <span className="text-[8px] text-slate-600">{i}h</span>}
+                  {i % 4 === 0 && <span className="text-[8px] font-bold text-slate-400">{i}h</span>}
                 </div>
               );
             })}
           </div>
-          <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded bg-violet-500" /><span className="text-slate-400">Peak</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded bg-white/10" /><span className="text-slate-400">Normal</span></div>
+          <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded bg-violet-500" /><span className="text-slate-600">Peak</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded bg-slate-200" /><span className="text-slate-500">Normal</span></div>
           </div>
         </div>
       </div>
 
       {/* Zone performance table */}
-      <div className="glass-card overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-white">Zone Performance</h2>
-            <p className="text-xs text-slate-500">Bengaluru pickup zones breakdown</p>
+            <h2 className="font-bold text-slate-900 text-lg">Zone Performance</h2>
+            <p className="text-xs font-medium text-slate-500">Bengaluru pickup zones breakdown</p>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/5">
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Zone</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Rides</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3 hidden sm:table-cell">Revenue</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Share</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Surge</th>
+              <tr className="border-b border-slate-200 bg-slate-50/50">
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-6 py-3">Zone</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-3">Rides</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-3 hidden sm:table-cell">Revenue</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-3">Share</th>
+                <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Surge</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-100">
               {zoneData.map((z, i) => {
                 const totalRides = zoneData.reduce((s, z) => s + z.rides, 0);
                 const share = (z.rides / totalRides) * 100;
                 return (
-                  <tr key={z.zone} className="hover:bg-white/3 transition-colors">
-                    <td className="px-5 py-3 flex items-center gap-3">
-                      <span className="text-xs text-slate-600 font-mono w-4">{i + 1}</span>
-                      <span className="text-sm font-medium text-white">{z.zone}</span>
+                  <tr key={z.zone} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-3 flex items-center gap-3">
+                      <span className="text-xs text-slate-400 font-mono w-4 font-bold">{i + 1}</span>
+                      <span className="text-sm font-bold text-slate-900">{z.zone}</span>
                     </td>
-                    <td className="px-4 py-3 text-sm font-bold text-white">{z.rides.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-sm text-green-400 font-semibold hidden sm:table-cell">₹{(z.revenue / 1000).toFixed(0)}K</td>
+                    <td className="px-4 py-3 text-sm font-black text-slate-900">{z.rides.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-sm text-green-700 font-bold hidden sm:table-cell">₹{(z.revenue / 1000).toFixed(0)}K</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden" style={{ width: '80px' }}>
-                          <div className="h-full bg-gradient-to-r from-brand-500 to-violet-500 rounded-full" style={{ width: `${share}%` }} />
+                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden" style={{ width: '80px' }}>
+                          <div className="h-full bg-gradient-to-r from-brand-600 to-violet-600 rounded-full" style={{ width: `${share}%` }} />
                         </div>
-                        <span className="text-xs text-slate-400 w-8">{share.toFixed(0)}%</span>
+                        <span className="text-xs font-bold text-slate-500 w-8">{share.toFixed(0)}%</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
-                        parseFloat(z.surge) >= 1.4 ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                        parseFloat(z.surge) >= 1.2 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                        'bg-green-500/10 text-green-400 border-green-500/20'
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border uppercase tracking-wider ${
+                        parseFloat(z.surge) >= 1.4 ? 'bg-red-50 text-red-700 border-red-200' :
+                        parseFloat(z.surge) >= 1.2 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                        'bg-green-50 text-green-700 border-green-200'
                       }`}>
                         {z.surge}
                       </span>

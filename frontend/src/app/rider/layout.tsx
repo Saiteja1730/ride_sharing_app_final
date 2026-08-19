@@ -2,21 +2,35 @@
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function RiderLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, isHydrated } = useAuthStore();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.replace('/login'); return; }
-    if (user?.role === 'driver') router.replace('/driver');
-  }, [isAuthenticated, user, router]);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (isHydrated && !isAuthenticated) { router.replace('/login'); return; }
+    if (isHydrated && user?.role === 'driver') router.replace('/driver');
+  }, [mounted, isHydrated, isAuthenticated, user, router]);
+
+  if (!mounted || !isHydrated) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-brand-900 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-surface flex">
+    <div className="min-h-screen bg-slate-50 flex">
       <Sidebar role="rider" />
       <main className="flex-1 md:ml-64 min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">

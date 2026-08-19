@@ -41,7 +41,10 @@ export function useSocket() {
     });
 
     socket.on('connect_error', (err) => {
-      console.error('Socket connect error:', err.message);
+      console.warn('Socket connect error:', err.message);
+      if (err.message === 'Authentication failed' || err.message === 'No token provided' || err.message === 'jwt expired') {
+        useAuthStore.getState().clearAuth();
+      }
     });
 
     // ── Ride events ──────────────────────────────────
